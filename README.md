@@ -7,14 +7,47 @@ This is a set of scripts to install the tools I use on a daily basis for design 
 To install and configure everything, just run this line in terminal:
 
 ```
-sh ./setup.sh
+sh -c "`curl -fsSL https://raw.githubusercontent.com/pburtchaell/os/master/install.sh`"
+```
+
+When you run this line, you'll see an output a bit like this:
+
+```
+Cloning Git repository...
+Cloning into '/Users/pburtchaell/.os'...
+remote: Counting objects: 18, done.
+remote: Compressing objects: 100% (14/14), done.
+remote: Total 18 (delta 0), reused 16 (delta 0), pack-reused 0
+Unpacking objects: 100% (18/18), done.
+Setting up Homebrew...
+Checking for Homewbrew updates...
+Updating Homebrew...
+Installing Homebrew packages...
+Tapping into Homebrew casks...
+Would you like to install nvm and Node (y/n): y
+Installing commonly used npm packages...
+Would you like to install Create React Native App (y/n): y
+Would you like to install Create React Native App (y/n): y
+Would you like to install Create React App (y/n): y
+Would you like to install Gatsby (y/n): y
+Would you like to install rvm and Ruby (y/n): y
+...
 ```
 
 ## What's Included
 
 ### macOS Setup
 
-This sets reasonable defaults and settings for macOS.
+This script sets reasonable defaults and settings for macOS. This includes:
+
+- Finder
+- Mail
+- Calendar
+- Safari
+- Terminal
+- etc.
+
+If you're curious, [you can read through it](/macos/setup.sh) to see everything.
 
 ### Apps
 
