@@ -244,7 +244,7 @@ echo "macoS defaults are set, but some changes require a reboot."
 
 # See if you want to reboot.
 function reboot() {
-  read -p "Do you want to reboot your machine now? (y/n)" choice
+  read -p "Do you want to reboot your machine now? (y/n): " choice
 
   case "$choice" in
     y | Yes | yes ) echo "Yes"; exit;; # If y | yes, reboot
