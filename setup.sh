@@ -63,9 +63,9 @@ export -f log
 
 # Install development and design tools
 sh brew/install.sh
-sh node/install.sh
+#sh node/install.sh
 sh node/setup.sh
-sh ruby/install.sh
+#sh ruby/install.sh
 sh ruby/setup.sh
 
 # Set macOS defaults
