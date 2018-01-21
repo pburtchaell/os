@@ -1,10 +1,10 @@
 # os
 
-> A script that installs the tools I use on a daily basis for design and development work on macOS
+OS installs the tools I use on a daily basis for design and development work on macOS
 
 ## :warning: Warning
 
-This is a work in progress.
+This is a work in progress!
 
 Known Issues:
 
