@@ -1,16 +1,16 @@
 # os
 
-This is a set of scripts to install the tools I use on a daily basis for design and development work on macOS.
+OS, short for "operating system", is a script that installs the tools I use on a daily basis for design and development work on macOS.
 
 ## Getting Started
 
-To install and configure everything, just run this line in terminal:
+To clone the repository and install everything, run this line in Terminal:
 
 ```
 sh -c "`curl -fsSL https://raw.githubusercontent.com/pburtchaell/os/master/install.sh`"
 ```
 
-When you run this line, you'll see an output a bit like this:
+You'll see an output a bit like this:
 
 ```
 Cloning Git repository...
