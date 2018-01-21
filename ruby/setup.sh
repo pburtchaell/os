@@ -2,33 +2,47 @@
 # Last Updated: 2018-01-20
 # Description: Installs commonly used Ruby gems.
 
-echo "Installing commonly used Ruby gems..."
+LOG_FILE="ruby-setup.log"
+
+log "Installing commonly used Ruby gems..." $LOG_FILE
 
 # Install Bundler
-if test ! $(which bundle)
-then
-  echo "\tInstalling Bundler..."
-  gem install bundler >> /tmp/ruby-setup.log
-else
-  echo "\tBundler is already installed."
+ANSWER=$(ask_question "Bundler")
+
+if [ $ANSWER -eq 1 ]; then
+  if test ! $(which bundle)
+  then
+    log "Installing Bundler..." $LOG_FILE
+    gem install bundler >> ${PWD}/tmp/$LOG_FILE
+  else
+    log "Bundler is already installed." $LOG_FILE
+  fi
 fi
 
 # Install Ruby on Rails
-if test ! $(which rails)
-then
-  echo "\tInstalling Ruby on Rails..."
-  gem install rails >> /tmp/ruby-setup.log
-else
-  echo "\tRuby on Rails is already installed."
+ANSWER=$(ask_question "Ruby on Rails")
+
+if [ $ANSWER -eq 1 ]; then
+  if test ! $(which rails)
+  then
+    log "Installing Ruby on Rails..." $LOG_FILE
+    gem install rails >> ${PWD}/tmp/$LOG_FILE
+  else
+    log "Ruby on Rails is already installed." $LOG_FILE
+  fi
 fi
 
 # Install Foreman
-if test ! $(which foreman)
-then
-  echo "\tInstalling Foreman..."
-  gem install foreman >> /tmp/ruby-setup.log
-else
-  echo "\tForeman is already installed."
+ANSWER=$(ask_question "Foreman")
+
+if [ $ANSWER -eq 1 ]; then
+  if test ! $(which foreman)
+  then
+    log "Installing Foreman..." $LOG_FILE
+    gem install foreman >> ${PWD}/tmp/$LOG_FILE
+  else
+    log "Foreman is already installed." $LOG_FILE
+  fi
 fi
 
 exit 0

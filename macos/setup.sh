@@ -2,8 +2,6 @@
 # Last Updated: 2018-01-20
 # Description: Configures settings for macOS.
 
-echo "Setting macOS defaults..."
-
 # Ask for the administrator password
 sudo -v
 
@@ -247,6 +245,7 @@ echo "macoS defaults are set, but some changes require a reboot."
 # See if you want to reboot.
 function reboot() {
   read -p "Do you want to reboot your machine now? (y/n)" choice
+
   case "$choice" in
     y | Yes | yes ) echo "Yes"; exit;; # If y | yes, reboot
     n | N | No | no) echo "No"; exit;; # If n | no, exit
