@@ -37,7 +37,6 @@ Tapping into Homebrew casks...
 Would you like to install nvm and Node (y/n): y
 Installing commonly used npm packages...
 Would you like to install Create React Native App (y/n): y
-Would you like to install Create React Native App (y/n): y
 Would you like to install Create React App (y/n): y
 Would you like to install Gatsby (y/n): y
 Would you like to install rvm and Ruby (y/n): y
