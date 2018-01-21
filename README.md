@@ -1,6 +1,16 @@
 # os
 
-OS, short for "operating system", is a script that installs the tools I use on a daily basis for design and development work on macOS.
+> A script that installs the tools I use on a daily basis for design and development work on macOS
+
+## :warning: Warning
+
+This is a work in progress.
+
+Known Issues:
+
+- [rvm does not install](https://github.com/pburtchaell/os/issues/3)
+- [nvm does not install](https://github.com/pburtchaell/os/issues/2)
+- [apps are not installed](https://github.com/pburtchaell/os/issues/4)
 
 ## Getting Started
 
