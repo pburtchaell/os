@@ -34,6 +34,7 @@ source $ZSH/oh-my-zsh.sh
 alias code="cd ~/Repositories"
 alias pg-start="pg_ctl -D /usr/local/var/postgres start"
 alias pg-stop="pg_ctl -D /usr/local/var/postgres stop"
+alias fuckit="echo \"(╯°□°）╯︵ ┻━┻ \" && rm -rf node_modules"
 
 # Node Version Manager (nvm)
 # Load nvm and nvm bash completion
