@@ -109,6 +109,16 @@ The following tools are also installed:
 - [Ruby on Rails](https://github.com/rails/rails): Web app framework
 - [Foreman](https://github.com/ddollar/foreman): Manage Procfile based applications
 
+#### Hyper
+
+The latest version of [Hyper](https://github.com/zeit/hyper) is installed with Homebrew.
+
+The following plugins are also installed:
+
+- [hyperterm-atom-dark](https://www.npmjs.com/package/hyperterm-atom-dark): Theme based on the Atom One Dark theme
+- [hyperlinks](https://www.npmjs.com/package/hyperlinks): Link URLs
+- [hypercwd](https://www.npmjs.com/package/hypercwd): Open new tab with the same directory as the current tab
+
 ## But wait, that's not all!
 
 The scripts can't handle everything, unfortunately. There's a few other things to do.
