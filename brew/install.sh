@@ -40,6 +40,7 @@ brew tap caskroom/cask >> ${PWD}/tmp/$LOG_FILE
 # Todo: check if an application is installed first
 # log "Installing Homebrew casks..." $LOG_FILE
 #brew cask install\
+  #hyper\
   #origami-studio\
   #github\
   #framer\
