@@ -62,13 +62,14 @@ If you're curious, [you can read through it](/macos/setup.sh) to see everything.
 
 The following apps are installed via [Homebrew Cask](https://caskroom.github.io/):
 
-- Atom Editor
+- [Atom Editor](https://atom.io/) (Code editor of choice)
 - Chrome
 - Dropbox
 - Firefox
-- GitHub Desktop
+- [GitHub Desktop](https://desktop.github.com/)
 - Slack
 - Spotify
+- [Paw](https://paw.cloud/) (API tool and HTTP client)
 
 ### Design Tools
 
@@ -83,7 +84,7 @@ The following design tools/apps are installed via [Homebrew Cask](https://caskro
 
 #### Homebrew
 
-[Homebrew](https://brew.sh/) is "the missing package manager for macOS." It enables me to install a lot of software from the command line.
+[Homebrew](https://brew.sh/) is "the missing package manager for macOS." It enables me to install a lot of software from the command line. To see if an app can be installed with Homebrew Cask, [search here](https://caskroom.github.io/search).
 
 #### Node
 
