@@ -1,0 +1,12 @@
+{
+    "workbench.startupEditor": "newUntitledFile",
+    "atomKeymap.promptV3Features": true,
+    "editor.multiCursorModifier": "ctrlCmd",
+    "editor.formatOnPaste": true,
+    "workbench.statusBar.feedback.visible": false,
+    "workbench.colorTheme": "Atom One Dark",
+    "editor.fontSize": 14,
+    // Need to install Fira Mono from Google Fonts
+    // https://fonts.google.com/specimen/Fira+Mono
+    "editor.fontFamily": "'Fira Mono', Menlo, Monaco, 'Courier New', monospace"
+}
