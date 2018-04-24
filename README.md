@@ -132,6 +132,17 @@ Install the following plugins:
 
 Also make sure to setup [the GitHub integration](https://github.atom.io/) so you can see pull requests in the editor.
 
+### Visual Studio Code
+
+When paired with [Quokka.js](https://quokkajs.com/), VS Code is a great playground for JS.
+
+1. Install [VS Code](https://code.visualstudio.com/)
+2. Install Quokka.js extenstion
+3. Install [Atom One Dark theme](https://github.com/akamud/vscode-theme-onedark) (to match Atom Editor and Hyper)
+4. Install [Atom Keymap extenstion](https://github.com/Microsoft/vscode-atom-keybindings) (to use Atom Editor keymaps)
+
+You need to install extensions directly in VS Code.
+
 ## Original Inspiration
 
 I'd like to give a big thanks to the people to inspired me to write these scripts.
