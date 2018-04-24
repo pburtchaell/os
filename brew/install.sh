@@ -50,5 +50,6 @@ brew tap caskroom/cask >> ${PWD}/tmp/$LOG_FILE
   #firefox\
   #slack\
   #dropbox\
+  #paw\
 
 exit 0
