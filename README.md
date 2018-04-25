@@ -130,6 +130,7 @@ Install the following plugins:
 
 - [linter]( https://atom.io/packages/linter)
 - [linter-eslint](https://atom.io/packages/linter-eslint)
+- [atom-quokka](https://atom.io/packages/atom-quokka): JS sandbox in the editor
 
 Also make sure to setup [the GitHub integration](https://github.atom.io/) so you can see pull requests in the editor.
 
