@@ -6,7 +6,17 @@
     "workbench.statusBar.feedback.visible": false,
     "workbench.colorTheme": "Atom One Dark",
     "editor.fontSize": 17,
-    // Need to install Fira Mono from Google Fonts
+    // Fira Mono is available from Google Fonts for free:
     // https://fonts.google.com/specimen/Fira+Mono
-    "editor.fontFamily": "'Fira Mono', Menlo, Monaco, 'Courier New', monospace"
+    // Operator Mono is available from Hoefler & Co for around $200:
+    // https://www.typography.com/fonts/operator/overview/
+    "editor.fontFamily": "'Operator Mono',  'Fira Mono', Menlo, Monaco, 'Courier New', monospace",
+    "window.zoomLevel": 0,
+    "editor.minimap.enabled": false,
+    "editor.cursorStyle": "block",
+    "editor.fontLigatures": true,
+    "editor.formatOnSave": true,
+    "terminal.external.osxExec": "Hyper.app",
+    "terminal.integrated.shell.linux": "/bin/zsh",
+    "terminal.integrated.shell.osx": "/bin/zsh",
 }
