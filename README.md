@@ -145,6 +145,10 @@ When paired with [Quokka.js](https://quokkajs.com/), VS Code is a great playgrou
 
 You need to install extensions directly in VS Code.
 
+### macOS
+
+- [Fliqlo](https://fliqlo.com/): flip clock screensaver
+
 ## Original Inspiration
 
 I'd like to give a big thanks to the people to inspired me to write these scripts.
