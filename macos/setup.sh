@@ -1,6 +1,6 @@
 #!/bin/sh
-# Last Updated: 2018-01-20
-# Description: Configures settings for macOS.
+# Last Updated: 2018-10-12
+# Description: Configures defaults (settings) for macOS
 
 # Ask for the administrator password
 sudo -v
@@ -9,19 +9,19 @@ sudo -v
 while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
 
 # Set computer name
-# Todo: use functions to allow the user to input names
-#sudo scutil --set ComputerName "Patrick's MacBook Air"
-#sudo scutil --set HostName "pburtchaell-air"
-#sudo scutil --set LocalHostName "pburtchaell-air"
+# Todo: use functions to allow people to input names
+#sudo scutil --set ComputerName "Patrick's MacBook Pro"
+#sudo scutil --set HostName "pburtchaell-mbp"
+#sudo scutil --set LocalHostName "pburtchaell-mbp"
 
 ###############################################################################
-# Safari + Terminal
+# Safari
 ###############################################################################
 
-# Hide Safari's bookmark bar
-defaults write com.apple.Safari ShowFavoritesBar -bool false
+# Show the bookmark bar
+defaults write com.apple.Safari ShowFavoritesBar -bool true
 
-# Set up Safari for development
+# Set up Safari for web development
 defaults write com.apple.Safari IncludeInternalDebugMenu -bool true
 defaults write com.apple.Safari IncludeDevelopMenu -bool true
 defaults write com.apple.Safari WebKitDeveloperExtrasEnabledPreferenceKey -bool true
@@ -35,39 +35,42 @@ defaults write com.apple.Safari SuppressSearchSuggestions -bool true
 # Prevent Safari from opening ‘safe’ files automatically after downloading
 defaults write com.apple.Safari AutoOpenSafeDownloads -bool false
 
-# Set Safari’s home page to `about:blank` for faster loading
+# Set the home page to `about:blank` for faster loading
 defaults write com.apple.Safari HomePage -string "about:blank"
 
-# Use AirDrop over every interface
-defaults write com.apple.NetworkBrowser BrowseAllInterfaces 1
-
-# Disable the “Are you sure you want to open this application?” dialog
-defaults write com.apple.LaunchServices LSQuarantine -bool false
-
-# Disable Swipe controls for Google Chrome
-defaults write com.google.Chrome.plist AppleEnableSwipeNavigateWithScrolls -bool FALSE
+###############################################################################
+#  Terminal
+###############################################################################
 
 # Only use UTF-8 in Terminal
 defaults write com.apple.terminal StringEncodings -array 4
 
+###############################################################################
+# Print
+###############################################################################
+
 # Automatically quit printer app once the print jobs complete
 defaults write com.apple.print.PrintingPrefs "Quit When Finished" -bool true
 
-# Disable resume applocations after restart
-defaults write com.apple.systempreferences NSQuitAlwaysKeepsWindows -bool false
+###############################################################################
+# Google Chrome
+###############################################################################
+
+# Disable Swipe controls for Google Chrome
+defaults write com.google.Chrome.plist AppleEnableSwipeNavigateWithScrolls -bool FALSE
 
 ###############################################################################
 # App Store
 ###############################################################################
 
-# Enable the automatic update check
+# Turn on automatic update checks
 defaults write com.apple.SoftwareUpdate AutomaticCheckEnabled -bool true
 
-# Check for software updates daily, not just once per week
-defaults write com.assple.SoftwareUpdate ScheduleFrequency -int 1
-
-# Turn on app auto-update
+# Turn on automatic updates
 defaults write com.apple.commerce AutoUpdate -bool true
+
+# Check for software updates daily, not weekly
+defaults write com.assple.SoftwareUpdate ScheduleFrequency -int 1
 
 ###############################################################################
 # Mail
@@ -97,23 +100,23 @@ defaults write com.apple.ActivityMonitor SortColumn -string "CPUUsage"
 defaults write com.apple.ActivityMonitor SortDirection -int 0
 
 ###############################################################################
-# Trackpad, mouse, keyboard, bluetooth, etc.
+# Input - Trackpad, mouse, keyboard, bluetooth, etc.
 ###############################################################################
 
-# Map bottom right corner of Apple trackpad to right-click.
+# Map bottom right corner of Apple trackpad to right-click
 defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad TrackpadCornerSecondaryClick -int 2
 defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad TrackpadRightClick -bool true
 defaults -currentHost write -g com.apple.trackpad.trackpadCornerClickBehavior -int 1
 defaults -currentHost write com.apple.trackpad.enableSecondaryClick -bool true
 
-# Set a really fast keyboard repeat rate.
-defaults write NSGlobalDomain KeyRepeat -int 1
+# Set a fast keyboard repeat rate
+defaults write NSGlobalDomain KeyRepeat -int 3
 defaults write NSGlobalDomain InitialKeyRepeat -int 10
 
-# Disable press-and-hold for keys in favor of key repeat.
-defaults write -g ApplePressAndHoldEnabled -bool false
+# Enable press-and-hold for keys in favor of key repeat
+defaults write -g ApplePressAndHoldEnabled -bool true
 
-# Set language and text formats. (USD and Imperial Units)
+# Set language and text formats (USD and imperial units)
 defaults write -g AppleLanguages -array "en" "nl"
 defaults write -g AppleLocale -string "en_US@currency=USD"
 defaults write -g AppleMeasurementUnits -string "Inches"
@@ -127,12 +130,17 @@ defaults write -g AppleMetricUnits -bool false
 defaults write com.apple.screensaver askForPassword -int 1
 defaults write com.apple.screensaver askForPasswordDelay -int 0
 
-# Save screenshots to desktop and disable the drop shadow
-defaults write com.apple.screencapture location -string "${HOME}/Desktop"
+# Save screenshots to a screenshots folder
+mkdir "${HOME}/Screenshots"
+defaults write com.apple.screencapture location -string "${HOME}/Screenshots"
+
+# Save screenshots as png files
 defaults write com.apple.screencapture type -string "png"
+
+# Disable the drop shadow on screenshots
 defaults write com.apple.screencapture disable-shadow -bool true
 
-# Enable sub-pixel rendering on non-Apple LCDs.
+# Enable subpixel rendering on non-Apple LCD monitors
 defaults write NSGlobalDomain AppleFontSmoothing -int 2
 
 ###############################################################################
@@ -145,13 +153,16 @@ chflags nohidden ~/Library
 # Show the /Volumes folder
 sudo chflags nohidden /Volumes
 
-# Set the Finder prefs for showing a few different volumes on the Desktop
+# Use AirDrop over every interface
+defaults write com.apple.NetworkBrowser BrowseAllInterfaces 1
+
+# Set the Finder preferences for showing a few different volumes on the Desktop
 defaults write com.apple.finder ShowExternalHardDrivesOnDesktop -bool true
 defaults write com.apple.finder ShowRemovableMediaOnDesktop -bool true
 
-# Use list view in all Finder windows by default
+# Use column view in all Finder windows by default
 # Four-letter codes for the other view modes: `icnv`, `clmv`, `Flwv`
-defaults write com.apple.finder FXPreferredViewStyle -string "Nlsv"
+defaults write com.apple.finder FXPreferredViewStyle -string "clmv"
 
 # Show hidden files and file extensions by default
 defaults write com.apple.finder AppleShowAllFiles -bool true
@@ -160,17 +171,17 @@ defaults write NSGlobalDomain AppleShowAllExtensions -bool true
 # Disable the warning when changing file extensions
 defaults write com.apple.finder FXEnableExtensionChangeWarning -bool false
 
-# Allow text-selection in Quick Look
+# Disable the warning when opening applications from the internet
+defaults write com.apple.LaunchServices LSQuarantine -bool false
+
+# Allow text selection in Quick Preview
 defaults write com.apple.finder QLEnableTextSelection -bool true
 
-# Disable the warning before emptying the Trash
+# Disable the warning before emptying the trash
 defaults write com.apple.finder WarnOnEmptyTrash -bool false
 
-# Enable auto-correct
+# Enable auto correct (spell check)
 defaults write NSGlobalDomain NSAutomaticSpellingCorrectionEnabled -bool true
-
-# Disable the “Are you sure you want to open this application?” dialog
-defaults write com.apple.LaunchServices LSQuarantine -bool false
 
 # Expand print panel by default
 defaults write NSGlobalDomain PMPrintingExpandedStateForPrint -bool true
@@ -178,26 +189,22 @@ defaults write NSGlobalDomain PMPrintingExpandedStateForPrint -bool true
 # Expand save panel by default
 defaults write NSGlobalDomain NSNavPanelExpandedStateForSaveMode -bool true
 
-# Disable Resume system-wide
+# Disable the "Resume" feature
 defaults write com.apple.systempreferences NSQuitAlwaysKeepsWindows -bool false
 
 # Disable the crash reporter
 defaults write com.apple.CrashReporter DialogType -string "none"
 
+# Disable window animations for better performance
+defaults write NSGlobalDomain NSAutomaticWindowAnimationsEnabled -bool NO
+
+# Disable icons on the desktop
+defaults write com.apple.finder CreateDesktop false
+
 # Enable snap-to-grid for icons on the desktop and in other icon views
 /usr/libexec/PlistBuddy -c "Set :DesktopViewSettings:IconViewSettings:arrangeBy grid" ~/Library/Preferences/com.apple.finder.plist
 /usr/libexec/PlistBuddy -c "Set :FK_StandardViewSettings:IconViewSettings:arrangeBy grid" ~/Library/Preferences/com.apple.finder.plist
 /usr/libexec/PlistBuddy -c "Set :StandardViewSettings:IconViewSettings:arrangeBy grid" ~/Library/Preferences/com.apple.finder.plist
-
-# Increase grid spacing for icons on the desktop and in other icon views
-/usr/libexec/PlistBuddy -c "Set :DesktopViewSettings:IconViewSettings:gridSpacing 100" ~/Library/Preferences/com.apple.finder.plist
-/usr/libexec/PlistBuddy -c "Set :FK_StandardViewSettings:IconViewSettings:gridSpacing 100" ~/Library/Preferences/com.apple.finder.plist
-/usr/libexec/PlistBuddy -c "Set :StandardViewSettings:IconViewSettings:gridSpacing 100" ~/Library/Preferences/com.apple.finder.plist
-
-# Increase the size of icons on the desktop and in other icon views
-/usr/libexec/PlistBuddy -c "Set :DesktopViewSettings:IconViewSettings:iconSize 80" ~/Library/Preferences/com.apple.finder.plist
-/usr/libexec/PlistBuddy -c "Set :FK_StandardViewSettings:IconViewSettings:iconSize 80" ~/Library/Preferences/com.apple.finder.plist
-/usr/libexec/PlistBuddy -c "Set :StandardViewSettings:IconViewSettings:iconSize 80" ~/Library/Preferences/com.apple.finder.plist
 
 ###############################################################################
 # TextEdit
@@ -217,6 +224,12 @@ defaults write com.apple.TextEdit PlainTextEncodingForWrite -int 4
 # Show indicator lights for open applications in the Dock
 defaults write com.apple.dock show-process-indicators -bool true
 
+# Show the Dock instantly when show/hide is enabled
+defaults write com.apple.dock expose-animation-duration -int 0;
+
+# Minimize applications to the Dock more quickly by using the scale effect
+efaults write com.apple.dock mineffect -string scale
+
 ###############################################################################
 # Kill applications
 ###############################################################################
@@ -233,7 +246,7 @@ for app in "Activity Monitor" \
   "Messages" \
   "Safari" \
   "SystemUIServer" \
-  "iCal"; do
+  "Calendar"; do
   killall "${app}" &> /dev/null 2>&1
 
   # > /dev/null 2>&1
