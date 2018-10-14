@@ -145,6 +145,16 @@ When paired with [Quokka.js](https://quokkajs.com/), VS Code is a great playgrou
 
 You need to install extensions directly in VS Code.
 
+### Sketch
+
+#### Plugins to Install
+
+#### Performance Enhancements
+
+Use Sketch 52 for great performance. In v52, Sketch switched to the M
+
+Disable Animations:
+
 ### macOS
 
 - [Fliqlo](https://fliqlo.com/): flip clock screensaver

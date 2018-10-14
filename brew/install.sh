@@ -4,6 +4,8 @@
 
 LOG_FILE="homebrew-install.log"
 
+log_title "Homebrew"
+
 # Check for Homebrew
 if test ! $(which brew)
 then
@@ -34,22 +36,58 @@ if test ! $(which pg_ctl);
 log "Tapping into Homebrew casks..." $LOG_FILE
 brew tap caskroom/cask >> ${PWD}/tmp/$LOG_FILE
 
+log_title "macOS Appplications"
+
+declare -a apps_to_install_app_name=(
+  "Hyper Terminal"
+  "Origami Studio"
+  "Github"
+  "Sketch"
+  "Spotify"
+  "Chrome"
+  "Firefox"
+  "Slack"
+  "Dropbox"
+  "Paw"
+  "Steam"
+  "Discord"
+  "Dashlane"
+  "VS Code"
+  "Bartender"
+  "Flux"
+  "Rescue Time"
+)
+
+declare -a apps_to_install_package_name=(
+  "hyper"
+  "origami-studio"
+  "github"
+  "sketch"
+  "spotify"
+  "chrome"
+  "firefox"
+  "slack"
+  "dropbox"
+  "paw"
+  "steam"
+  "discord"
+  "dashlane"
+  "visual-studio-code"
+  "bartender"
+  "flux"
+  "rescuetime"
+)
+
 # Install Homebrew packages from the caskrooms
 # This is mostly applications for design and general uses
-# Todo: list all applications
-# Todo: check if an application is installed first
-# log "Installing Homebrew casks..." $LOG_FILE
-#brew cask install\
-  #hyper\
-  #origami-studio\
-  #github\
-  #framer\
-  #sketch\
-  #spotify\
-  #chrome\
-  #firefox\
-  #slack\
-  #dropbox\
-  #paw\
+for i in "${!apps_to_install_package_name[@]}"; do
+  package_name="${apps_to_install_package_name[i]}"
+  app_name="${apps_to_install_app_name[i]}"
+
+  while [ $(ask_question $app_name) -eq 1 ]; do
+    install_log $app_name $LOG_FILE
+    brew cask install $package_name
+  done
+done
 
 exit 0
