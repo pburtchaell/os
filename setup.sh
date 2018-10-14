@@ -1,12 +1,12 @@
 #!/bin/sh
 # Last Updated: 2018-01-20
-# Description: Runs the setup for everything.
+# Description: Runs the setup for everything
 
 # Make temporary folder for logs
 if [ -d ${PWD}/tmp ]; then rm -rf ${PWD}/tmp; fi
 mkdir ${PWD}/tmp
 
-# Make folder for git repositories
+# Make folder for git repositorie
 REPOSITORIES=${HOME}/Repositories
 if [ ! -d ${REPOSITORIES} ]; then mkdir ${REPOSITORIES}; fi
 
