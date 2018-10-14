@@ -54,7 +54,7 @@ module.exports = {
 
     // Shell to run when spawning a new session (i.e. /usr/local/bin/fish)
     // if left empty, your system's login shell will be used by default
-    shell: '',
+    shell: 'zsh',
 
     // Shell arguments (i.e. for using interactive shellArgs: ['-i'])
     // by default ['--login'] will be used
@@ -62,7 +62,7 @@ module.exports = {
 
     // Environment variables
     env: {},
-    
+
     bell: 'SOUND',
 
     // If true, selected text will automatically be copied to the clipboard
