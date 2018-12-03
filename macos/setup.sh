@@ -120,6 +120,13 @@ defaults write -g AppleMeasurementUnits -string "Inches"
 defaults write -g AppleMetricUnits -bool false
 
 ###############################################################################
+# Sketch
+###############################################################################
+
+# Disable safe mode
+defaults write com.bohemiancoding.sketch3 disableAutomaticSafeMode true
+
+###############################################################################
 # Screen
 ###############################################################################
 
