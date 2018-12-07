@@ -126,6 +126,9 @@ defaults write -g AppleMetricUnits -bool false
 # Disable safe mode
 defaults write com.bohemiancoding.sketch3 disableAutomaticSafeMode true
 
+# Enable right click to "inspect element" for custom plugins 
+defaults write com.bohemiancoding.sketch3 WebKitDeveloperExtras -bool true
+
 ###############################################################################
 # Screen
 ###############################################################################
