@@ -18,5 +18,5 @@
     "editor.formatOnSave": true,
     "terminal.external.osxExec": "Hyper.app",
     "terminal.integrated.shell.linux": "/bin/zsh",
-    "terminal.integrated.shell.osx": "/bin/zsh",
+    "terminal.integrated.shell.osx": "/bin/zsh"
 }
