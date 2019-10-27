@@ -1,12 +1,12 @@
 #!/bin/sh
-# Last Updated: 2018-01-20
-# Description: Runs the setup for everything.
+# Last Updated: 2019-10-27
+# Description: Clones the git repo and checks if the script should run
 
 if [ ! -d "$HOME/.os/.osrc" ]; then
-    echo "Cloning Git repository..."
+    echo "Cloning github.com/pburtchaell/os.gi git repository..."
     git clone --depth=1 https://github.com/pburtchaell/os.git "$HOME/.os"
     cd "$HOME/.os"
     sh ./setup.sh
 else
-    echo "Everything is already installed and setup."
+    echo "It looks like everything is already installed and configured."
 fi

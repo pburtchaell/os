@@ -1,29 +1,15 @@
-# Path to your oh-my-zsh installation.
-export ZSH=/Users/pburtchaell/.oh-my-zsh
-export PATH=${PATH}:/usr/local/Cellar/graphicsmagick/1.3.21/bin
+# Default oh-my-zsh config
+# Last Updated: 2019-10-27
 
-# Fastlane
-export PATH="$HOME/.fastlane/bin:$PATH"
+# Path to your oh-my-zsh installation
+export ZSH=/Users/pburtchaell/.oh-my-zsh
 
 # Yarn Package Manager
 # Reference: https://yarnpkg.com/en/
 export PATH="$PATH:`yarn global bin`"
 
-# Android SDK and Development Tools
-# brew cask install android-sdk
-# brew cask install android-ndk
-# brew cask install caskroom/versions/java8
-# Reference: https://gist.github.com/agrcrobles/165ac477a9ee51198f4a870c723cd441
-# Reference: https://gist.github.com/patrickhammond/4ddbe49a67e5eb1b9c03
-export PATH=$ANT_HOME/bin:$PATH
-export PATH=$MAVEN_HOME/bin:$PATH
-export PATH=$GRADLE_HOME/bin:$PATH
-export ANDROID_HOME=$HOME/Library/Android/sdk
-export PATH=$PATH:$ANDROID_HOME/tools
-export PATH=$PATH:$ANDROID_HOME/platform-tools
-
 # Zsh Theme
-# Reference: https://github.com/robbyrussell/oh-my-zsh/wiki/Themes
+# https://github.com/robbyrussell/oh-my-zsh/wiki/Themes
 ZSH_THEME="robbyrussell"
 
 # Zsh Plugins
@@ -32,39 +18,6 @@ source $ZSH/oh-my-zsh.sh
 
 # Aliases
 alias code="cd ~/Repositories"
+alias fuckit="echo \"Removing node_modules (╯°□°）╯︵ ┻━┻ \" && rm -rf node_modules"
 alias pg-start="pg_ctl -D /usr/local/var/postgres start"
 alias pg-stop="pg_ctl -D /usr/local/var/postgres stop"
-alias fuckit="echo \"(╯°□°）╯︵ ┻━┻ \" && rm -rf node_modules"
-
-# Node Version Manager (nvm)
-# Load nvm and nvm bash completion
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
-
-# Call `nvm use` automatically in a directory with an `.nvmrc` file
-autoload -U add-zsh-hook
-load-nvmrc() {
-  local node_version="$(nvm version)"
-  local nvmrc_path="$(nvm_find_nvmrc)"
-
-  if [ -n "$nvmrc_path" ]; then
-    local nvmrc_node_version=$(nvm version "$(cat "${nvmrc_path}")")
-
-    if [ "$nvmrc_node_version" = "N/A" ]; then
-      nvm install
-    elif [ "$nvmrc_node_version" != "$node_version" ]; then
-      nvm use
-    fi
-  elif [ "$node_version" != "$(nvm version default)" ]; then
-    echo "Reverting to nvm default version"
-    nvm use default
-  fi
-}
-add-zsh-hook chpwd load-nvmrc
-load-nvmrc
-
-# Ruby Version Manager
-# Make sure this is the last PATH variable change.
-export PATH="$PATH:$HOME/.rvm/bin"
-

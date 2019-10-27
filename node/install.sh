@@ -1,46 +1,49 @@
 #!/bin/sh
-# Last Updated: 2018-01-21
-# Description: Installs nvm and Node.
+# Last Updated: 2019-10-27
+# Description: Installs nvm and node
 
 LOG_FILE="node-install.log"
 
-# Function: install_node
-# Description: Installs the stable version of Node.
 install_node() {
-  echo "Installing a stable version of Node..."
-
-  # Install the stable version.
+  echo "🔄 Installing node..."
   nvm install stable > /dev/null 2>&1
-
-  # Use the stable version by default.
   nvm alias default stable >> ${PWD}/tmp/node-install.log
 }
 
-# Function: install_all
-# Description: Install both nvm and Mode.
-install_all() {
-  if [ test ! $(which nvm) ]
-  then
-    echo "nvm is already installed."
-
-    install_node
-  else
-    echo "Installing nvm..."
-    "$(curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.8/install.s)" >> ${PWD}/tmp/nvm-install.log
-
-    install_node
-  fi
+install_nvm() {
+  echo "🔄 Installing node version manager (nvm)..."
+  "$(curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.8/install.s)" >> ${PWD}/tmp/nvm-install.log
+  
+  export NVM_DIR="$HOME/.nvm"
+  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 }
 
-# Load nvm
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+install_all() {
+  install_nvm
+  install_node
+}
 
-# Only install nvm and Node if the user wants it.
-ANSWER=$(ask_question "nvm and Node")
+# Check for nvm and node
+if [ -f $(which nvm) ]; then 
+  echo "✅ node version manager (nvm) is installed."
 
-if [ $ANSWER -eq 1 ]; then
-  install_all
+  if [ -f $(which node) ]; then
+    echo "✅ node is installed."
+  else
+    ANSWER=$(ask_question "node and node version manager (nvm)")
+    if [ $ANSWER -eq 1 ]; then
+      install_all
+    fi
+  fi
+else 
+  if [-f $(which node)]; then 
+    echo "✅ node is installed."
+  else
+    ANSWER=$(ask_question "node version manager")
+    if [ $ANSWER -eq 1 ]; then
+      install_nvm
+    fi
+  fi
 fi
 
 exit 0
