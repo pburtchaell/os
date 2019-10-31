@@ -6,11 +6,8 @@
     "workbench.statusBar.feedback.visible": false,
     "workbench.colorTheme": "Atom One Dark",
     "editor.fontSize": 17,
-    // Fira Mono is available from Google Fonts for free:
-    // https://fonts.google.com/specimen/Fira+Mono
-    // Operator Mono is available from Hoefler & Co for around $200:
-    // https://www.typography.com/fonts/operator/overview/
-    "editor.fontFamily": "'Operator Mono',  'Fira Mono', Menlo, Monaco, 'Courier New', monospace",
+    "telemetry.enableTelemetry": false,
+    "telemetry.enableCrashReporter": false,
     "window.zoomLevel": 0,
     "editor.minimap.enabled": false,
     "editor.cursorStyle": "block",
