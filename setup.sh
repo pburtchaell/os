@@ -73,7 +73,6 @@ export -f log
 
 sh brew/install.sh
 sh node/install.sh
-sh node/setup.sh
 MACOS_ANSWER=$(ask_question "macOS defaults")
 
 if [ $MACOS_ANSWER -eq 1 ]; then

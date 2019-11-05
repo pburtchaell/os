@@ -24,10 +24,10 @@ install_all() {
 }
 
 # Check for nvm and node
-if [ -f $(which nvm) ]; then 
+if hash nvm 2>/dev/null; then 
   echo "✅ node version manager (nvm) is installed."
 
-  if [ -f $(which node) ]; then
+  if hash node 2>/dev/null; then
     echo "✅ node is installed."
   else
     ANSWER=$(ask_question "node and node version manager (nvm)")
@@ -36,12 +36,16 @@ if [ -f $(which nvm) ]; then
     fi
   fi
 else 
-  if [-f $(which node)]; then 
+  if hash node 2>/dev/null; then 
     echo "✅ node is installed."
-  else
     ANSWER=$(ask_question "node version manager")
     if [ $ANSWER -eq 1 ]; then
       install_nvm
+    fi
+  else
+    ANSWER=$(ask_question "node and node version manager (nvm)")
+    if [ $ANSWER -eq 1 ]; then
+      install_all
     fi
   fi
 fi
