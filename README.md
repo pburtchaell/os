@@ -34,7 +34,7 @@ Fourth, the script changes macOS system preferences for more productive design &
 * [hyperlinks](https://www.npmjs.com/package/hyperlinks): Open URLs from terminal
 * [hypercwd](https://www.npmjs.com/package/hypercwd): Open new tab with the same directory as the current tab
 
-### [Visual Studio Code]()
+### Visual Studio Code
 [Visual Studio Code](https://code.visualstudio.com/), again with the [Atom One Dark theme](https://github.com/akamud/vscode-theme-onedark) theme, is the terminal I use for my web development work.
 
 [Quokka.js](https://quokkajs.com/) is a nice scratchpad for iterating through ideas in Visual Studio Code, but I also like using the [Framer X code playground]().
