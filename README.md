@@ -1,86 +1,47 @@
 # os
-
-Installs the tools I use on a daily basis for design and development work on macOS.
+This is a simple, reliable and safe script to:
+* Install web dev tools like Node and npm on your Mac 
+* Customize the macOS system preferences for productive design & web development work
 
 ## Getting Started
-
-To clone the repository and install everything, run this line in Terminal:
-
+To install everything, run this line in your terminal:
 ```
 sh -c "`curl -fsSL https://raw.githubusercontent.com/pburtchaell/os/master/install.sh`"
 ```
 
-You'll see an output a bit like this:
+This will clone the repo from GitHub and run the script.
 
-```
-Cloning Git repository...
-Setting up Homebrew...
-Checking for Homewbrew updates...
-Updating Homebrew...
-Installing Homebrew packages...
-Tapping into Homebrew casks...
-Would you like to install nvm and Node (y/n): y
-Installing commonly used npm packages...
-Would you like to install Create React Native App (y/n): y
-Would you like to install Create React App (y/n): y
-Would you like to install Gatsby (y/n): y
-Would you like to install rvm and Ruby (y/n): y
-...
-```
+## What Happens on Your Mac
+### 1. Homebrew
+First things first. The script will install [Homebrew](https://brew.sh/), a useful package manager for macOS. Later on, Homebrew will be used to install Zsh, Node and other development tools.
 
-## What's Included
+### 2. Zsh
+Second, your shell will be configured to use [Zsh](http://www.zsh.org/). macOS ships with Zsh, but it's outdated and not tied to Homebrew. By reinstalling Zsh with Homebrew, you'll get the latest version. [Oh My Zsh](https://ohmyz.sh/), a framework for customizing Zsh, will also be installed.
 
-### macOS Setup
+### 3. Node.js
+Third, Homebrew will install the latest version of [Node.js](https://nodejs.org/en/). 
 
-This script changes the macOS settings and preferences to my taste. Read [macos/setup.sh](/macos/setup.sh) to see.
+You can also opt-in to install: 
+* [nvm](https://github.com/creationix/nvm), a version manager for Node
+* [Yarn](https://yarnpkg.com/en/), an alternative to npm for installing dependencies
 
-### Development Tools
+### 4. macOS System Preferences
+Fourth, the script changes macOS system preferences for more productive design & development work on your Mac. See the [macos/setup.sh](/macos/setup.sh) script for a complete list of changes!
 
-#### Homebrew
+## Apps You Should Install 
+### Hyper
+[Hyper](https://hyper.is/), customized with the [Atom One Dark theme](https://www.npmjs.com/package/hyperterm-atom-dark), is my terminal. It's fast, customizable and looks great. I like that I can use the same theme (Atom One Dark) in both Hyper and Visual Studio Code. There's two plugins I recommend:
+* [hyperlinks](https://www.npmjs.com/package/hyperlinks): Open URLs from terminal
+* [hypercwd](https://www.npmjs.com/package/hypercwd): Open new tab with the same directory as the current tab
 
-[Homebrew](https://brew.sh/) is "the missing package manager for macOS."
-#### Node
+### [Visual Studio Code]()
+[Visual Studio Code](https://code.visualstudio.com/), again with the [Atom One Dark theme](https://github.com/akamud/vscode-theme-onedark) theme, is the terminal I use for my web development work.
 
-The stable version of Node is installed via nvm and set to the default.
+[Quokka.js](https://quokkajs.com/) is a nice scratchpad for iterating through ideas in Visual Studio Code, but I also like using the [Framer X code playground]().
 
-The following tools are also installed:
+## My Inspiration
+* [skwp/dotfiles](https://github.com/skwp/dotfiles)
+* [mathiasbynens/dotfiles](https://github.com/mathiasbynens/dotfiles)
 
-- [nvm](https://github.com/creationix/nvm): Version manager for Node
-- [Yarn](https://yarnpkg.com/en/): Fast dependency manager
-
-#### Hyper
-
-The latest version of [Hyper](https://github.com/zeit/hyper) is installed with Homebrew.
-
-The following plugins are also installed:
-
-- [hyperterm-atom-dark](https://www.npmjs.com/package/hyperterm-atom-dark): Theme based on the Atom One Dark theme
-- [hyperlinks](https://www.npmjs.com/package/hyperlinks): Link URLs
-- [hypercwd](https://www.npmjs.com/package/hypercwd): Open new tab with the same directory as the current tab
-
-## But wait, that's not all!
-
-### Visual Studio Code
-
-When paired with [Quokka.js](https://quokkajs.com/), VS Code is a great playground for JS.
-
-1. Install [VS Code](https://code.visualstudio.com/)
-2. Install Quokka.js extenstion
-3. Install [Atom One Dark theme](https://github.com/akamud/vscode-theme-onedark) (to match Atom Editor and Hyper)
-4. Install [Atom Keymap extenstion](https://github.com/Microsoft/vscode-atom-keybindings) (to use Atom Editor keymaps)
-
-You need to install extensions directly in VS Code.
-
-## Original Inspiration
-
-I'd like to give a big thanks to the people to inspired me to write these scripts.
-
-- [skwp/dotfiles](https://github.com/skwp/dotfiles)
-- [mathiasbynens/dotfiles](https://github.com/mathiasbynens/dotfiles)
-
-## Reference
-
-- [Shell Script Basics](https://developer.apple.com/library/content/documentation/OpenSource/Conceptual/ShellScripting/shell_scripts/shell_scripts.html)
-
----
-Copyright 2016-2018 Patrick Burtchaell. Licensed MIT.
+## My Reference
+* [Shell Script Basics](https://developer.apple.com/library/content/documentation/OpenSource/Conceptual/ShellScripting/shell_scripts/shell_scripts.html) (Apple)
