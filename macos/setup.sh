@@ -40,18 +40,17 @@ defaults write com.apple.terminal StringEncodings -array 4
 # Automatically quit printer app once the print jobs complete
 defaults write com.apple.print.PrintingPrefs "Quit When Finished" -bool true
 
-# Disable resume applocations after restart
+# Disable resume applications after restart
 defaults write com.apple.systempreferences NSQuitAlwaysKeepsWindows -bool false
 
-# App Store
 # Enable the automatic update check
 defaults write com.apple.SoftwareUpdate AutomaticCheckEnabled -bool true
 
+# Turn on automatic app update
+defaults write com.apple.commerce AutoUpdate -bool true
+
 # Check for software updates daily, not just once per week
 defaults write com.assple.SoftwareUpdate ScheduleFrequency -int 1
-
-# Turn on app auto-update
-defaults write com.apple.commerce AutoUpdate -bool true
 
 # Show the main window when launching Activity Monitor
 defaults write com.apple.ActivityMonitor OpenMainWindow -bool true
@@ -63,18 +62,8 @@ defaults write com.apple.ActivityMonitor ShowCategory -int 0
 defaults write com.apple.ActivityMonitor SortColumn -string "CPUUsage"
 defaults write com.apple.ActivityMonitor SortDirection -int 0
 
-# Set fast keyboard repeat rate.
-# defaults write NSGlobalDomain KeyRepeat -int 1
-# defaults write NSGlobalDomain InitialKeyRepeat -int 10
-
 # Disable press-and-hold for keys in favor of key repeat.
 defaults write -g ApplePressAndHoldEnabled -bool false
-
-# Disable Sketch safe mode
-defaults write com.bohemiancoding.sketch3 disableAutomaticSafeMode true
-
-# Enable right click to "inspect element" for custom Sketch plugins 
-defaults write com.bohemiancoding.sketch3 WebKitDeveloperExtras -bool true
 
 # Require password immediately after sleep or screen saver begins
 defaults write com.apple.screensaver askForPassword -int 1
