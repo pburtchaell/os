@@ -1,5 +1,5 @@
 #!/bin/sh
-# Last Updated: 2019-10-27
+# Last Updated: 2021-02-02
 # Description: Configures settings for macOS
 
 # Ask for the administrator password
