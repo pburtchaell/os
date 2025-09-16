@@ -21,27 +21,15 @@ Second, your shell will be configured to use [Zsh](http://www.zsh.org/). macOS s
 ### 3. Node.js
 Third, Homebrew will install the latest version of [Node.js](https://nodejs.org/en/). 
 
-You can also opt-in to install: 
-* [nvm](https://github.com/creationix/nvm), a version manager for Node
-* [Yarn](https://yarnpkg.com/en/), an alternative to npm for installing dependencies
-
 ### 4. macOS System Preferences
 Fourth, the script changes macOS system preferences for more productive design & development work on your Mac. See the [macos/setup.sh](/macos/setup.sh) script for a complete list of changes!
 
-## Apps You Should Install 
-### Hyper
-[Hyper](https://hyper.is/), customized with the [Atom One Dark theme](https://www.npmjs.com/package/hyperterm-atom-dark), is my terminal. It's fast, customizable and looks great. I like that I can use the same theme (Atom One Dark) in both Hyper and Visual Studio Code. There's two plugins I recommend:
-* [hyperlinks](https://www.npmjs.com/package/hyperlinks): Open URLs from terminal
-* [hypercwd](https://www.npmjs.com/package/hypercwd): Open new tab with the same directory as the current tab
+## Apps to Install
+* [VS Code](https://code.visualstudio.com/)
 
-### Visual Studio Code
-[Visual Studio Code](https://code.visualstudio.com/), again with the [Atom One Dark theme](https://github.com/akamud/vscode-theme-onedark) theme, is the terminal I use for my web development work.
+## Sources
+* [jaywcjlove/awesome-mac](https://github.com/jaywcjlove/awesome-mac)
 
-[Quokka.js](https://quokkajs.com/) is a nice scratchpad for iterating through ideas in Visual Studio Code, but I also like using the [Framer X code playground]().
-
-## My Inspiration
+## Inspiration
 * [skwp/dotfiles](https://github.com/skwp/dotfiles)
 * [mathiasbynens/dotfiles](https://github.com/mathiasbynens/dotfiles)
-
-## My Reference
-* [Shell Script Basics](https://developer.apple.com/library/content/documentation/OpenSource/Conceptual/ShellScripting/shell_scripts/shell_scripts.html) (Apple)
