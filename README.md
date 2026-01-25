@@ -1,55 +1,64 @@
-# macOS setup
+# os
 
-A simple script to configure macOS system preferences for productive development work.
+A simple script to configure macOS system preferences to my liking and install my favorite apps, services and frameworks. **Completely refactored in 2026 for macOS Tahoe compatibility and to cover my current stack for useful, productive AI, coding and design work.**
 
 ## Getting started
 
-Clone the repo and run the setup script:
-
 ```bash
-git clone https://github.com/pburtchaell/os.git ~/.os
-cd ~/.os
 ./setup.sh
 ```
 
-The script will present an interactive menu to choose what to configure:
+The script will present a menu with configuration options:
 
-- **Run all** - Configure both macOS defaults and Dock layout
-- **macOS defaults only** - System preferences only
-- **Dock layout only** - Dock apps and settings only
+- **macOS settings** - Configure system preferences and app defaults
+- **Dock layout** - Set up Dock apps and settings
+- **Development tools** - Install Homebrew, Oh My Zsh, Node, pnpm and Claude Code
+- **All of the above** - Run everything
 
 ## What it does
 
-### macOS defaults
+### macOS system preferences
 
-Configures system preferences for:
+Configures more reasonable preferences for:
 
-- **Finder**: Show hidden files, use list view, show file extensions, enable text selection in Quick Look
-- **Safari**: Enable developer tools, disable search suggestions to Apple, set blank homepage
-- **Menu bar**: Hide WiFi, Battery, Spotlight, and Siri from menu bar
+- **Finder**: Show hidden files, use list view, show path/status bar, show file extensions
+- **Menu bar**: Hide WiFi, Battery, Spotlight, Siri, Focus Modes, Sound and Now Playing
 - **Screenshots**: Save as PNG, disable drop shadows
-- **Security**: Require password immediately after sleep
-- **Keyboard**: Enable key repeat (disable press-and-hold)
-- **Activity Monitor**: Show all processes, sort by CPU usage
-- **TextEdit**: Use plain text mode with UTF-8 encoding
+- **Keyboard**: Enable key repeat (disable press-and-hold), faster repeat rate
+- **Trackpad**: Faster tracking speed
 - **General**: Expand save/print panels, disable app resume, enable auto-updates
 
-See [macos/defaults.sh](macos/defaults.sh) for the complete list of changes.
+As well as a few app preferences:
+
+- **Safari**: Disable search suggestions to Apple, set blank homepage, disable password autofill
+- **Chrome**: Disable swipe navigation, disable background mode, expand print dialog
+- **TextEdit**: Use plain text mode with UTF-8 encoding
+- **Activity Monitor**: Show all processes, sort by CPU usage
 
 ### Dock layout
 
-Clears the Dock and adds your preferred apps:
+Clears the default Dock apps and adds your preferred apps in a nice order:
 
+- Finder
 - Messages
-- Development apps (if installed): Chrome, GitHub Desktop, Cursor, Xcode, VS Code, Figma, ChatGPT, Claude, Ghostty
+- Chrome, ChatGPT & Claude
+- GitHub Desktop, Ghostty, Cursor & Xcode
 - Downloads folder
-- Disables recent apps section
+- Trash
 
-See [macos/dock.sh](macos/dock.sh) for details.
+### Development tools
 
-**Note**: Dock configuration requires [dockutil](https://github.com/kcrawford/dockutil). Install with `brew install dockutil`.
+Installs the following tools if not already present:
 
-## Sources
+- **Homebrew** - Package manager for macOS
+- **Oh My Zsh** - Framework for managing Zsh configuration
+- **Node** - JavaScript runtime
+- **pnpm** - Fast, disk space efficient package manager
+- **Claude Code** - Fast coding
+
+## Inspiration
+
+Years ago, the original inspiration for this came from:
 
 - [mathiasbynens/dotfiles](https://github.com/mathiasbynens/dotfiles)
 - [jaywcjlove/awesome-mac](https://github.com/jaywcjlove/awesome-mac)

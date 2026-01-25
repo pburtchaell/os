@@ -4,6 +4,7 @@
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+source "$SCRIPT_DIR/scripts/utils.sh"
 
 ###############################################################################
 # Arrow key menu function                                                     #
@@ -19,11 +20,18 @@ select_option() {
 
     # Print menu
     print_menu() {
+        local last_index=$((${#options[@]} - 1))
         for i in "${!options[@]}"; do
             if [ $i -eq $selected ]; then
-                echo -e "  \033[1;32m> ${options[$i]}\033[0m"
+                if [ $i -eq $last_index ]; then
+                    # Exit option selected - red
+                    echo -e "    \033[1;31m> ${options[$i]}\033[0m"
+                else
+                    # Normal option selected - blue
+                    echo -e "    \033[1;34m> ${options[$i]}\033[0m"
+                fi
             else
-                echo "    ${options[$i]}"
+                echo "      ${options[$i]}"
             fi
         done
     }
@@ -80,59 +88,77 @@ select_option() {
 ###############################################################################
 
 echo ""
-echo "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⣀⠀⠀⠀⠀⠀⠀"
-echo "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣴⣿⣿⡿⠀⠀⠀⠀⠀⠀"
-echo "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣾⣿⣿⠟⠁⠀⠀⠀⠀⠀⠀"
-echo "⠀⠀⠀⢀⣠⣤⣤⣤⣀⣀⠈⠋⠉⣁⣠⣤⣤⣤⣀⡀⠀⠀"
-echo "⠀⢠⣶⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣦⡀"
-echo "⣠⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠟⠋⠀"
-echo "⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡏⠀⠀⠀"
-echo "⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡇⠀⠀⠀"
-echo "⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣧⠀⠀⠀"
-echo "⠹⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣤⣀"
-echo "⠀⠻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠁"
-echo "⠀⠀⠙⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡟⠁⠀"
-echo "⠀⠀⠀⠈⠙⢿⣿⣿⣿⠿⠟⠛⠻⠿⣿⣿⣿⡿⠋⠀⠀⠀"
+echo "      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⣀⠀⠀⠀⠀⠀⠀"
+echo "      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣴⣿⣿⡿⠀⠀⠀⠀⠀⠀"
+echo "      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣾⣿⣿⠟⠁⠀⠀⠀⠀⠀⠀"
+echo "      ⠀⠀⠀⢀⣠⣤⣤⣤⣀⣀⠈⠋⠉⣁⣠⣤⣤⣤⣀⡀⠀⠀"
+echo "      ⠀⢠⣶⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣦⡀"
+echo "      ⣠⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠟⠋⠀"
+echo "      ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡏⠀⠀⠀"
+echo "      ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡇⠀⠀⠀"
+echo "      ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣧⠀⠀⠀"
+echo "      ⠹⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣤⣀"
+echo "      ⠀⠻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠁"
+echo "      ⠀⠀⠙⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡟⠁⠀"
+echo "      ⠀⠀⠀⠈⠙⢿⣿⣿⣿⠿⠟⠛⠻⠿⣿⣿⣿⡿⠋⠀⠀⠀"
+# Get username and time-based greeting
+username=$(whoami)
+hour=$(date +%H)
+
+if [ $hour -ge 5 ] && [ $hour -lt 12 ]; then
+    greeting="Good morning $username"
+elif [ $hour -ge 12 ] && [ $hour -lt 17 ]; then
+    greeting="Good afternoon $username"
+elif [ $hour -ge 17 ] && [ $hour -lt 21 ]; then
+    greeting="Good evening $username"
+else
+    greeting="Hey $username, you night owl"
+fi
+
 echo ""
-echo "Hi! Let's configure your Mac for development."
+echo "  $greeting, how can I help you setup your Mac today?"
 echo ""
 
 # Menu options
 options=(
-    "Run all (macOS defaults + Dock)"
-    "macOS defaults only"
-    "Dock layout only"
+    "Update macOS settings and apps with their preferred defaults"
+    "Update macOS dock with its preferred apps and layout"
+    "Install development tools (Brew, Oh My Zsh, Node, pnpm & Claude Code)"
+    "All of the above"
+    "Exit"
 )
-
-echo "What would you like to configure?"
-echo ""
 
 select_option "${options[@]}"
 choice=$SELECTED_OPTION
 
-echo ""
-echo "Your password is needed to change some system settings."
-echo ""
+# Handle exit option
+if [ $choice -eq 4 ]; then
+    echo ""
+    echo "  Goodbye!"
+    exit 0
+fi
 
-# Ask for administrator password upfront
-sudo -v
-
-# Keep sudo alive until the script finishes
-while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
+echo ""
+request_sudo
 
 case $choice in
     0)
-        # Run all
-        bash "$SCRIPT_DIR/macos/defaults.sh"
-        bash "$SCRIPT_DIR/macos/dock.sh"
+        # macOS defaults only
+        bash "$SCRIPT_DIR/scripts/defaults.sh"
         ;;
     1)
-        # macOS defaults only
-        bash "$SCRIPT_DIR/macos/defaults.sh"
+        # Dock layout only
+        bash "$SCRIPT_DIR/scripts/dock.sh"
         ;;
     2)
-        # Dock layout only
-        bash "$SCRIPT_DIR/macos/dock.sh"
+        # Dev tools only
+        bash "$SCRIPT_DIR/scripts/dev.sh"
+        ;;
+    3)
+        # Run all
+        bash "$SCRIPT_DIR/scripts/defaults.sh"
+        bash "$SCRIPT_DIR/scripts/dock.sh"
+        bash "$SCRIPT_DIR/scripts/dev.sh"
         ;;
 esac
 
@@ -140,6 +166,5 @@ esac
 touch "$HOME/.osrc"
 
 echo ""
-echo "Setup complete!"
-
+echo -e "  ${BOLD}Setup complete${NC} ${RED}♥${NC}"
 exit 0
