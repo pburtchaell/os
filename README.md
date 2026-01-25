@@ -1,35 +1,55 @@
-# os
-This is a simple, reliable and safe script to:
-* Install web dev tools like Node and npm on your Mac 
-* Customize the macOS system preferences for productive design & web development work
+# macOS setup
 
-## Getting Started
-To install everything, run this line in your terminal:
+A simple script to configure macOS system preferences for productive development work.
+
+## Getting started
+
+Clone the repo and run the setup script:
+
+```bash
+git clone https://github.com/pburtchaell/os.git ~/.os
+cd ~/.os
+./setup.sh
 ```
-sh -c "`curl -fsSL https://raw.githubusercontent.com/pburtchaell/os/master/install.sh`"
-```
 
-This will clone the repo from GitHub and run the script.
+The script will present an interactive menu to choose what to configure:
 
-## What Happens on Your Mac
-### 1. Homebrew
-First things first. The script will install [Homebrew](https://brew.sh/), a useful package manager for macOS. Later on, Homebrew will be used to install Zsh, Node and other development tools.
+- **Run all** - Configure both macOS defaults and Dock layout
+- **macOS defaults only** - System preferences only
+- **Dock layout only** - Dock apps and settings only
 
-### 2. Zsh
-Second, your shell will be configured to use [Zsh](http://www.zsh.org/). macOS ships with Zsh, but it's outdated and not tied to Homebrew. By reinstalling Zsh with Homebrew, you'll get the latest version. [Oh My Zsh](https://ohmyz.sh/), a framework for customizing Zsh, will also be installed.
+## What it does
 
-### 3. Node.js
-Third, Homebrew will install the latest version of [Node.js](https://nodejs.org/en/). 
+### macOS defaults
 
-### 4. macOS System Preferences
-Fourth, the script changes macOS system preferences for more productive design & development work on your Mac. See the [macos/setup.sh](/macos/setup.sh) script for a complete list of changes!
+Configures system preferences for:
 
-## Apps to Install
-* [VS Code](https://code.visualstudio.com/)
+- **Finder**: Show hidden files, use list view, show file extensions, enable text selection in Quick Look
+- **Safari**: Enable developer tools, disable search suggestions to Apple, set blank homepage
+- **Menu bar**: Hide WiFi, Battery, Spotlight, and Siri from menu bar
+- **Screenshots**: Save as PNG, disable drop shadows
+- **Security**: Require password immediately after sleep
+- **Keyboard**: Enable key repeat (disable press-and-hold)
+- **Activity Monitor**: Show all processes, sort by CPU usage
+- **TextEdit**: Use plain text mode with UTF-8 encoding
+- **General**: Expand save/print panels, disable app resume, enable auto-updates
+
+See [macos/defaults.sh](macos/defaults.sh) for the complete list of changes.
+
+### Dock layout
+
+Clears the Dock and adds your preferred apps:
+
+- Messages
+- Development apps (if installed): Chrome, GitHub Desktop, Cursor, Xcode, VS Code, Figma, ChatGPT, Claude, Ghostty
+- Downloads folder
+- Disables recent apps section
+
+See [macos/dock.sh](macos/dock.sh) for details.
+
+**Note**: Dock configuration requires [dockutil](https://github.com/kcrawford/dockutil). Install with `brew install dockutil`.
 
 ## Sources
-* [jaywcjlove/awesome-mac](https://github.com/jaywcjlove/awesome-mac)
 
-## Inspiration
-* [skwp/dotfiles](https://github.com/skwp/dotfiles)
-* [mathiasbynens/dotfiles](https://github.com/mathiasbynens/dotfiles)
+- [mathiasbynens/dotfiles](https://github.com/mathiasbynens/dotfiles)
+- [jaywcjlove/awesome-mac](https://github.com/jaywcjlove/awesome-mac)

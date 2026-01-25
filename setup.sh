@@ -1,83 +1,145 @@
-#!/bin/sh
-# Last Updated: 2019-10-27
-# Description: Runs the setup for everything
+#!/bin/bash
+# Description: Configures macOS system preferences for productive development work
 
-# Welcome messages
-echo "Hi! Let's setup your new Mac <3"
+set -e
 
-# Ask for administrator password
-echo "Your password is used to configure macOS settings and to install software like Homebrew and node."
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
+###############################################################################
+# Arrow key menu function                                                     #
+###############################################################################
+
+select_option() {
+    local options=("$@")
+    local selected=0
+    local key
+
+    # Hide cursor
+    tput civis
+
+    # Print menu
+    print_menu() {
+        for i in "${!options[@]}"; do
+            if [ $i -eq $selected ]; then
+                echo -e "  \033[1;32m> ${options[$i]}\033[0m"
+            else
+                echo "    ${options[$i]}"
+            fi
+        done
+    }
+
+    # Clear menu lines
+    clear_menu() {
+        for _ in "${options[@]}"; do
+            tput cuu1
+            tput el
+        done
+    }
+
+    print_menu
+
+    while true; do
+        # Read single character
+        IFS= read -rsn1 key
+
+        # Handle arrow keys (escape sequences)
+        if [[ $key == $'\x1b' ]]; then
+            read -rsn2 key
+            case $key in
+                '[A') # Up arrow
+                    ((selected--))
+                    if [ $selected -lt 0 ]; then
+                        selected=$((${#options[@]} - 1))
+                    fi
+                    ;;
+                '[B') # Down arrow
+                    ((selected++))
+                    if [ $selected -ge ${#options[@]} ]; then
+                        selected=0
+                    fi
+                    ;;
+            esac
+        elif [[ $key == "" ]]; then
+            # Enter key pressed
+            break
+        fi
+
+        clear_menu
+        print_menu
+    done
+
+    # Show cursor
+    tput cnorm
+
+    # Set global variable instead of return (to avoid set -e issues)
+    SELECTED_OPTION=$selected
+}
+
+###############################################################################
+# Main script                                                                 #
+###############################################################################
+
+echo ""
+echo "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⣀⠀⠀⠀⠀⠀⠀"
+echo "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣴⣿⣿⡿⠀⠀⠀⠀⠀⠀"
+echo "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣾⣿⣿⠟⠁⠀⠀⠀⠀⠀⠀"
+echo "⠀⠀⠀⢀⣠⣤⣤⣤⣀⣀⠈⠋⠉⣁⣠⣤⣤⣤⣀⡀⠀⠀"
+echo "⠀⢠⣶⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣦⡀"
+echo "⣠⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠟⠋⠀"
+echo "⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡏⠀⠀⠀"
+echo "⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡇⠀⠀⠀"
+echo "⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣧⠀⠀⠀"
+echo "⠹⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣤⣀"
+echo "⠀⠻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠁"
+echo "⠀⠀⠙⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡟⠁⠀"
+echo "⠀⠀⠀⠈⠙⢿⣿⣿⣿⠿⠟⠛⠻⠿⣿⣿⣿⡿⠋⠀⠀⠀"
+echo ""
+echo "Hi! Let's configure your Mac for development."
+echo ""
+
+# Menu options
+options=(
+    "Run all (macOS defaults + Dock)"
+    "macOS defaults only"
+    "Dock layout only"
+)
+
+echo "What would you like to configure?"
+echo ""
+
+select_option "${options[@]}"
+choice=$SELECTED_OPTION
+
+echo ""
+echo "Your password is needed to change some system settings."
+echo ""
+
+# Ask for administrator password upfront
 sudo -v
 
-# Update existing `sudo` time stamp until the script is finished
+# Keep sudo alive until the script finishes
 while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
 
-# Make temporary folder for logs
-if [ -d ${PWD}/tmp ]; then rm -rf ${PWD}/tmp; fi
-mkdir ${PWD}/tmp
+case $choice in
+    0)
+        # Run all
+        bash "$SCRIPT_DIR/macos/defaults.sh"
+        bash "$SCRIPT_DIR/macos/dock.sh"
+        ;;
+    1)
+        # macOS defaults only
+        bash "$SCRIPT_DIR/macos/defaults.sh"
+        ;;
+    2)
+        # Dock layout only
+        bash "$SCRIPT_DIR/macos/dock.sh"
+        ;;
+esac
 
-# Make folder for git repositories
-REPOSITORIES=${HOME}/Repositories
-if [ ! -d ${REPOSITORIES} ]; then mkdir ${REPOSITORIES}; fi
+# Mark setup as complete
+touch "$HOME/.osrc"
 
-# Function: ask_question
-# Description: Ask a yes/no question and return boolean value based off answer.
-ask_question() {
-  read -p "🔼 Would you like to install $1 (y/n): " ANSWER
-
-  case $ANSWER in
-    y | Y | Yes | yes )
-      status=1 # return true
-      break
-      ;;
-    n | N | No | no)
-      status=0 # return false
-      break
-      ;;
-    * )
-      echo "Sorry, didn't get that. Please tell me \"y/yes\" or \"n/no\""
-      ask_question "$1" ANSWER
-      break
-      ;;
-  esac
-
-  echo $status
-  return
-}
-
-# Function: install_log
-# Description: Log an install message.
-install_log() {
-  echo "🔄 Installing $1..." | tee -a ${PWD}/tmp/$2
-
-  return
-}
-
-# Function: already_install_log
-# Description: Log an already installed message.
-already_install_log() {
-  echo "✅ $1 is installed." | tee -a ${PWD}/tmp/$2
-}
-
-# Function: log
-# Description: Log a message to the console and to a file
-log() {
-  echo $1 | tee -a ${PWD}/tmp/$2
-}
-
-# Export functions
-export -f ask_question
-export -f install_log
-export -f already_install_log
-export -f log
-
-sh brew/install.sh
-sh node/install.sh
-MACOS_ANSWER=$(ask_question "macOS defaults")
-
-if [ $MACOS_ANSWER -eq 1 ]; then
-  log "🔄 Installing macOS defaults..." "macos-setup.log"
-  sh macos/setup.sh
-fi
+echo ""
+echo "Setup complete!"
 
 exit 0
