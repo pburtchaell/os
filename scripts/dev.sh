@@ -1,5 +1,5 @@
 #!/bin/bash
-# Description: Installs development tools (Homebrew, Oh My Zsh, Node, pnpm, Claude Code)
+# Description: Installs development tools (Homebrew, Oh My Zsh, Node, pnpm, Python, Claude Code)
 
 set -e
 
@@ -54,6 +54,16 @@ if command -v pnpm &>/dev/null; then
     success "pnpm is already installed ($(pnpm --version))"
 else
     run_step "Installing pnpm..." brew install pnpm || exit 1
+fi
+
+###############################################################################
+# Python                                                                       #
+###############################################################################
+
+if command -v python3 &>/dev/null && [[ "$(which python3)" == *"/opt/homebrew/"* || "$(which python3)" == *"/usr/local/"* ]]; then
+    success "Python is already installed ($(python3 --version))"
+else
+    run_step "Installing Python..." brew install python || exit 1
 fi
 
 ###############################################################################
