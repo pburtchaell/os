@@ -72,6 +72,16 @@ substep_skip() {
 # Sudo functions                                                              #
 ###############################################################################
 
+# PID of the sudo keep-alive background process
+SUDO_KEEPALIVE_PID=""
+
+# Cleanup function to kill sudo keep-alive process
+cleanup_sudo_keepalive() {
+    if [ -n "$SUDO_KEEPALIVE_PID" ] && kill -0 "$SUDO_KEEPALIVE_PID" 2>/dev/null; then
+        kill "$SUDO_KEEPALIVE_PID" 2>/dev/null
+    fi
+}
+
 # Request sudo access with a nice message, or confirm if already cached
 # Also starts a background process to keep sudo alive
 request_sudo() {
@@ -82,9 +92,13 @@ request_sudo() {
         sudo -v -p "  Password: "
         printf "\r\033[K  ${GREEN}✓${NC} Password received, thanks\n"
     fi
-    
+
     # Keep sudo alive until the script finishes
-    while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
+    (while true; do sudo -n true; sleep 60; done) 2>/dev/null &
+    SUDO_KEEPALIVE_PID=$!
+
+    # Ensure cleanup on script exit
+    trap cleanup_sudo_keepalive EXIT INT TERM
 }
 
 ###############################################################################
@@ -100,14 +114,18 @@ run_with_spinner() {
     local message="$1"
     shift
     local cmd=("$@")
-    
-    # Start the command in background
-    "${cmd[@]}" &>/dev/null &
+
+    # Create temp file for capturing output
+    local log_file
+    log_file=$(mktemp)
+
+    # Start the command in background, capturing output for debugging
+    "${cmd[@]}" &>"$log_file" &
     local pid=$!
-    
+
     local i=0
     local delay=0.1
-    
+
     # Show spinner while command runs
     while kill -0 $pid 2>/dev/null; do
         local frame="${SPINNER_FRAMES:$i:1}"
@@ -115,14 +133,22 @@ run_with_spinner() {
         i=$(( (i + 1) % ${#SPINNER_FRAMES} ))
         sleep $delay
     done
-    
+
     # Wait for command to finish and get exit code
     wait $pid
     local exit_code=$?
-    
+
     # Clear the spinner line
     printf "\r\033[K"
-    
+
+    # On failure, show the captured output for debugging
+    if [ $exit_code -ne 0 ] && [ -s "$log_file" ]; then
+        echo -e "    ${GRAY}--- Command output ---${NC}" >&2
+        cat "$log_file" >&2
+        echo -e "    ${GRAY}----------------------${NC}" >&2
+    fi
+
+    rm -f "$log_file"
     return $exit_code
 }
 
@@ -144,7 +170,7 @@ run_step() {
         success "$success_message"
         return 0
     else
-        error "Failed to install"
+        error "Failed: $message"
         return 1
     fi
 }
