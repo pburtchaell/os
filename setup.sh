@@ -15,8 +15,9 @@ select_option() {
     local selected=0
     local key
 
-    # Hide cursor
+    # Hide cursor and ensure it's restored on exit/interrupt
     tput civis
+    trap 'tput cnorm' RETURN EXIT INT TERM
 
     # Print menu
     print_menu() {
