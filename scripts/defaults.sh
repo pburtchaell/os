@@ -25,14 +25,18 @@ else
     step_skip "Safari skipped (requires Full Disk Access for Terminal)"
 fi
 
-step_start "Configuring Google Chrome..."
-defaults write com.google.Chrome AppleEnableSwipeNavigateWithScrolls -bool false
-defaults write com.google.Chrome AppleEnableMouseSwipeNavigateWithScrolls -bool false
-defaults write com.google.Chrome DisablePrintPreview -bool true
-defaults write com.google.Chrome PMPrintingExpandedStateForPrint2 -bool true
-defaults write com.google.Chrome DnsPrefetchingEnabled -bool false
-defaults write com.google.Chrome BackgroundModeEnabled -bool false
-step_done "Google Chrome configured"
+if [ -d "/Applications/Google Chrome.app" ]; then
+    step_start "Configuring Google Chrome..."
+    defaults write com.google.Chrome AppleEnableSwipeNavigateWithScrolls -bool false
+    defaults write com.google.Chrome AppleEnableMouseSwipeNavigateWithScrolls -bool false
+    defaults write com.google.Chrome DisablePrintPreview -bool true
+    defaults write com.google.Chrome PMPrintingExpandedStateForPrint2 -bool true
+    defaults write com.google.Chrome DnsPrefetchingEnabled -bool false
+    defaults write com.google.Chrome BackgroundModeEnabled -bool false
+    step_done "Google Chrome configured"
+else
+    step_skip "Google Chrome not installed, skipping"
+fi
 
 step_start "Configuring general UX settings..."
 defaults write com.apple.print.PrintingPrefs "Quit When Finished" -bool true
@@ -104,7 +108,7 @@ step_done "Software Update configured"
 step_start "Configuring Menu Bar & Control Center..."
 defaults write com.apple.controlcenter "NSStatusItem Visible WiFi" -bool false
 defaults write com.apple.controlcenter "NSStatusItem Visible Battery" -bool false
-defaults write ~/Library/Preferences/ByHost/com.apple.controlcenter.plist BatteryShowInControlCenter -bool true
+defaults write "$HOME/Library/Preferences/ByHost/com.apple.controlcenter.plist" BatteryShowInControlCenter -bool true
 defaults write com.apple.Spotlight "NSStatusItem Visible Item-0" -bool false
 defaults write com.apple.Spotlight ShowSuggestionsInSpotlight -bool false
 defaults write com.apple.Spotlight orderedItems -array \
@@ -137,21 +141,9 @@ defaults write com.apple.controlcenter "NSStatusItem Visible Timer" -bool false
 defaults write com.apple.menuextra.clock ShowSeconds -bool true
 step_done "Menu Bar & Control Center configured"
 
-step_start "Restarting affected applications..."
-
-for app in "Activity Monitor" \
-    "cfprefsd" \
-    "Dock" \
-    "Finder" \
-    "SystemUIServer"; do
-    killall "${app}" >/dev/null 2>&1 || true
-done
-
-step_done "Applications restarted"
-
 confirm "macOS preferences configured successfully"
 
-# Prompt for reboot
+# Prompt for reboot before restarting apps (so prompt displays correctly)
 read -p "  Would you like to reboot your Mac now? (y/n): " reboot_choice
 case "$reboot_choice" in
     y|Y|yes|Yes)
@@ -160,6 +152,19 @@ case "$reboot_choice" in
         ;;
     *)
         warn "Skipping reboot. Some changes may require a restart to take effect."
+
+        # Restart affected applications only if not rebooting
+        step_start "Restarting affected applications..."
+
+        for app in "Activity Monitor" \
+            "cfprefsd" \
+            "Dock" \
+            "Finder" \
+            "SystemUIServer"; do
+            killall "${app}" >/dev/null 2>&1 || true
+        done
+
+        step_done "Applications restarted"
         ;;
 esac
 
