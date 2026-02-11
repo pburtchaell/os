@@ -41,7 +41,7 @@ fi
 ###############################################################################
 
 step_start "Removing existing Dock items..."
-dockutil --remove all --no-restart
+dockutil --remove all --no-restart 2>/dev/null || true
 step_done "Dock cleared"
 
 ###############################################################################
@@ -54,8 +54,13 @@ add_app() {
     local app_name="$2"
     if [ -d "$app_path" ]; then
         substep_start "Adding $app_name..."
-        dockutil --add "$app_path" --no-restart &>/dev/null
-        substep_done "$app_name added"
+        if dockutil --add "$app_path" --no-restart &>/dev/null; then
+            substep_done "$app_name added"
+        else
+            substep_skip "$app_name failed to add"
+        fi
+    else
+        substep_skip "$app_name not installed"
     fi
 }
 
@@ -77,8 +82,11 @@ add_app "/Applications/Xcode.app" "Xcode"
 
 step "Adding folders to Dock:"
 substep_start "Adding Downloads..."
-dockutil --add "~/Downloads" --view grid --display folder --no-restart &>/dev/null
-substep_done "Downloads added"
+if dockutil --add "$HOME/Downloads" --view grid --display folder --no-restart &>/dev/null; then
+    substep_done "Downloads added"
+else
+    substep_skip "Downloads failed to add"
+fi
 
 ###############################################################################
 # Dock preferences                                                            #
