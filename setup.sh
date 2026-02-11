@@ -56,13 +56,13 @@ select_option() {
             read -rsn2 key
             case $key in
                 '[A') # Up arrow
-                    ((selected--))
+                    selected=$((selected - 1))
                     if [ $selected -lt 0 ]; then
                         selected=$((${#options[@]} - 1))
                     fi
                     ;;
                 '[B') # Down arrow
-                    ((selected++))
+                    selected=$((selected + 1))
                     if [ $selected -ge ${#options[@]} ]; then
                         selected=0
                     fi
@@ -106,11 +106,11 @@ echo "      ⠀⠀⠀⠈⠙⢿⣿⣿⣿⠿⠟⠛⠻⠿⣿⣿⣿⡿⠋⠀⠀⠀"
 username=$(whoami)
 hour=$(date +%H)
 
-if [ $hour -ge 5 ] && [ $hour -lt 12 ]; then
+if [ "$hour" -ge 5 ] && [ "$hour" -lt 12 ]; then
     greeting="Good morning $username"
-elif [ $hour -ge 12 ] && [ $hour -lt 17 ]; then
+elif [ "$hour" -ge 12 ] && [ "$hour" -lt 17 ]; then
     greeting="Good afternoon $username"
-elif [ $hour -ge 17 ] && [ $hour -lt 21 ]; then
+elif [ "$hour" -ge 17 ] && [ "$hour" -lt 21 ]; then
     greeting="Good evening $username"
 else
     greeting="Hey $username, you night owl"
@@ -132,34 +132,38 @@ options=(
 select_option "${options[@]}"
 choice=$SELECTED_OPTION
 
-# Handle exit option
-if [ $choice -eq 4 ]; then
+# Handle exit option (last item in array)
+if [ $choice -eq $((${#options[@]} - 1)) ]; then
     echo ""
     echo "  Goodbye!"
     exit 0
 fi
 
 echo ""
-request_sudo
+
+# Request sudo only for options that need it (defaults and dev tools)
+if [ $choice -eq 0 ] || [ $choice -eq 2 ] || [ $choice -eq 3 ]; then
+    request_sudo
+fi
 
 case $choice in
     0)
         # macOS defaults only
-        bash "$SCRIPT_DIR/scripts/defaults.sh"
+        bash "$SCRIPT_DIR/scripts/defaults.sh" || exit 1
         ;;
     1)
         # Dock layout only
-        bash "$SCRIPT_DIR/scripts/dock.sh"
+        bash "$SCRIPT_DIR/scripts/dock.sh" || exit 1
         ;;
     2)
         # Dev tools only
-        bash "$SCRIPT_DIR/scripts/dev.sh"
+        bash "$SCRIPT_DIR/scripts/dev.sh" || exit 1
         ;;
     3)
         # Run all
-        bash "$SCRIPT_DIR/scripts/defaults.sh"
-        bash "$SCRIPT_DIR/scripts/dock.sh"
-        bash "$SCRIPT_DIR/scripts/dev.sh"
+        bash "$SCRIPT_DIR/scripts/defaults.sh" || exit 1
+        bash "$SCRIPT_DIR/scripts/dock.sh" || exit 1
+        bash "$SCRIPT_DIR/scripts/dev.sh" || exit 1
         ;;
 esac
 
