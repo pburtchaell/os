@@ -84,6 +84,7 @@ step_done "Dock configured"
 
 step_start "Configuring Terminal..."
 defaults write com.apple.terminal StringEncodings -array 4
+touch ~/.hushlogin
 step_done "Terminal configured"
 
 step_start "Configuring TextEdit..."
