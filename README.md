@@ -12,7 +12,7 @@ The script will present a menu with configuration options:
 
 - **macOS settings** - Configure system preferences and app defaults
 - **Dock layout** - Set up Dock apps and settings
-- **Development tools** - Install Homebrew, Oh My Zsh, Node, pnpm and Claude Code
+- **Development tools** - Install Homebrew, Oh My Zsh, Node, pnpm, Python, Claude Code and Mole
 - **All of the above** - Run everything
 
 ## What it does
@@ -54,7 +54,9 @@ Installs the following tools if not already present:
 - **Oh My Zsh** - Framework for managing Zsh configuration
 - **Node** - JavaScript runtime
 - **pnpm** - Fast, disk space efficient package manager
+- **Python** - General-purpose programming language
 - **Claude Code** - Fast coding
+- **Mole** - SSH tunnel manager
 
 ## Inspiration
 

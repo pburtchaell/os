@@ -108,5 +108,17 @@ else
     fi
 fi
 
+###############################################################################
+# Mole                                                                         #
+###############################################################################
+
+if command -v mole &>/dev/null; then
+    success "Mole is already installed"
+else
+    if ! run_step "Installing Mole..." brew install mole; then
+        exit 1
+    fi
+fi
+
 confirm "Development tools installed successfully"
 exit 0
