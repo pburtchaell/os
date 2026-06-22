@@ -1,0 +1,12 @@
+# Shared color palette is sourced across files; some codes are unused per-file.
+disable=SC2034
+
+# printf format strings intentionally embed ANSI color-escape variables.
+disable=SC2059
+
+# Scripts source utils.sh via a dynamic "$SCRIPT_DIR" path ShellCheck can't resolve.
+disable=SC1091
+
+# enable_simulate defines no-op functions that shadow external commands; they
+# are invoked indirectly (by name as commands), not called directly.
+disable=SC2329
