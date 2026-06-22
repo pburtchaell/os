@@ -9,8 +9,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      # The runner image ships an older shellcheck (0.9.0) whose SC2317
+      # reachability check false-positives on indirectly-invoked functions.
+      # Pin a current release so CI matches local development.
+      - name: Install ShellCheck
+        run: |
+          VERSION=v0.11.0
+          curl -fsSL "https://github.com/koalaman/shellcheck/releases/download/${VERSION}/shellcheck-${VERSION}.linux.x86_64.tar.xz" | tar -xJ
+          sudo install "shellcheck-${VERSION}/shellcheck" /usr/local/bin/shellcheck
+          shellcheck --version
       - name: Run ShellCheck
-        run: shellcheck setup.sh scripts/*.sh tests/fixtures/*.sh
+        run: shellcheck setup.sh scripts/*.sh
 
   tests:
     runs-on: ubuntu-latest

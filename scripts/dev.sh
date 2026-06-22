@@ -15,32 +15,26 @@ source "$SCRIPT_DIR/utils.sh"
 enable_simulate
 
 echo ""
-info "Installing development tools"
+log "Installing development tools"
 
 ###############################################################################
 # Homebrew                                                                     #
 ###############################################################################
 
 if command -v brew &>/dev/null; then
-    success "Homebrew is already installed"
+    success "Homebrew is already installed" 1
 elif [ "${SIMULATE:-0}" = "1" ]; then
-    step_start "Installing Homebrew..."
-    step_done "Homebrew installed"
-else
-    step_start "Installing Homebrew..."
-    # Use NONINTERACTIVE to prevent prompts since we handle sudo separately
-    if NONINTERACTIVE=1 /bin/bash -c "$(curl --fail -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"; then
-        step_done "Homebrew installed"
-        # Add Homebrew to PATH for Apple Silicon Macs
-        if [[ -f "/opt/homebrew/bin/brew" ]]; then
-            eval "$(/opt/homebrew/bin/brew shellenv)"
-            step "Note: Add this to your shell profile for persistent PATH:"
-            echo "      eval \"\$(/opt/homebrew/bin/brew shellenv)\""
-        fi
-    else
-        step_skip "Homebrew installation failed"
-        exit 1
+    success "Homebrew installed" 1
+# Use NONINTERACTIVE to prevent prompts since we handle sudo separately
+elif spin "Installing Homebrew..." env NONINTERACTIVE=1 /bin/bash -c "$(curl --fail -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"; then
+    # Add Homebrew to PATH for Apple Silicon Macs
+    if [[ -f "/opt/homebrew/bin/brew" ]]; then
+        eval "$(/opt/homebrew/bin/brew shellenv)"
+        log "Add this to your shell profile for persistent PATH:" 1
+        echo "      eval \"\$(/opt/homebrew/bin/brew shellenv)\""
     fi
+else
+    exit 1
 fi
 
 ###############################################################################
@@ -48,19 +42,12 @@ fi
 ###############################################################################
 
 if [ -d "$HOME/.oh-my-zsh" ]; then
-    success "Oh My Zsh is already installed"
+    success "Oh My Zsh is already installed" 1
 elif [ "${SIMULATE:-0}" = "1" ]; then
-    step_start "Installing Oh My Zsh..."
-    step_done "Oh My Zsh installed"
-else
-    step_start "Installing Oh My Zsh..."
-    # Use --unattended to prevent prompts; note this may modify ~/.zshrc
-    if sh -c "$(curl --fail -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended; then
-        step_done "Oh My Zsh installed"
-    else
-        step_skip "Oh My Zsh installation failed"
-        exit 1
-    fi
+    success "Oh My Zsh installed" 1
+# Use --unattended to prevent prompts; note this may modify ~/.zshrc
+elif ! spin "Installing Oh My Zsh..." sh -c "$(curl --fail -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended; then
+    exit 1
 fi
 
 ###############################################################################
@@ -68,11 +55,9 @@ fi
 ###############################################################################
 
 if command -v node &>/dev/null; then
-    success "Node.js is already installed ($(node --version))"
+    success "Node.js is already installed ($(node --version))" 1
 else
-    if ! run_step "Installing Node.js..." brew install node; then
-        exit 1
-    fi
+    spin "Installing Node.js..." brew install node || exit 1
 fi
 
 ###############################################################################
@@ -80,11 +65,9 @@ fi
 ###############################################################################
 
 if command -v pnpm &>/dev/null; then
-    success "pnpm is already installed ($(pnpm --version))"
+    success "pnpm is already installed ($(pnpm --version))" 1
 else
-    if ! run_step "Installing pnpm..." brew install pnpm; then
-        exit 1
-    fi
+    spin "Installing pnpm..." brew install pnpm || exit 1
 fi
 
 ###############################################################################
@@ -92,11 +75,9 @@ fi
 ###############################################################################
 
 if brew list python &>/dev/null; then
-    success "Python is already installed ($(python3 --version))"
+    success "Python is already installed ($(python3 --version))" 1
 else
-    if ! run_step "Installing Python..." brew install python; then
-        exit 1
-    fi
+    spin "Installing Python..." brew install python || exit 1
 fi
 
 ###############################################################################
@@ -104,19 +85,12 @@ fi
 ###############################################################################
 
 if command -v claude &>/dev/null; then
-    success "Claude Code is already installed"
+    success "Claude Code is already installed" 1
 elif [ "${SIMULATE:-0}" = "1" ]; then
-    step_start "Installing Claude Code..."
-    step_done "Claude Code installed"
-else
-    step_start "Installing Claude Code..."
-    # Native installer (https://claude.ai/install.sh)
-    if bash -c "$(curl --fail -fsSL https://claude.ai/install.sh)"; then
-        step_done "Claude Code installed"
-    else
-        step_skip "Claude Code installation failed"
-        exit 1
-    fi
+    success "Claude Code installed" 1
+# Native installer (https://claude.ai/install.sh)
+elif ! spin "Installing Claude Code..." bash -c "$(curl --fail -fsSL https://claude.ai/install.sh)"; then
+    exit 1
 fi
 
 ###############################################################################
@@ -124,11 +98,9 @@ fi
 ###############################################################################
 
 if command -v mole &>/dev/null; then
-    success "Mole is already installed"
+    success "Mole is already installed" 1
 else
-    if ! run_step "Installing Mole..." brew install mole; then
-        exit 1
-    fi
+    spin "Installing Mole..." brew install mole || exit 1
 fi
 
 ###############################################################################
@@ -187,23 +159,23 @@ for entry in "${cask_apps[@]}"; do
 done
 
 echo ""
-step "Select applications to install:"
-step "↑/↓ to move, space to select, enter to confirm"
+log "Select applications to install:" 1
+log "↑/↓ to move, space to select, enter to confirm" 1
 echo ""
 select_multiple "${app_labels[@]}"
 
 if [ ${#SELECTED_INDICES[@]} -eq 0 ]; then
-    step "No applications selected"
+    log "No applications selected" 1
 else
     for idx in "${SELECTED_INDICES[@]}"; do
         IFS='|' read -r cask app label <<< "${cask_apps[$idx]}"
         if cask_installed "$cask" "$app"; then
-            success "$label is already installed"
-        elif ! run_step "Installing $label..." brew install --cask "$cask"; then
+            success "$label is already installed" 1
+        elif ! spin "Installing $label..." brew install --cask "$cask"; then
             exit 1
         fi
     done
 fi
 
-confirm "Development tools installed successfully"
+success "Development tools installed successfully"
 exit 0

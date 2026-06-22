@@ -14,58 +14,103 @@ BOLD='\033[1m'
 NC='\033[0m' # No Color
 
 ###############################################################################
+# Capability detection                                                        #
+###############################################################################
+
+# True when stdout is an interactive terminal and the `gum` CLI is on PATH.
+# Used by spin to decide between gum's animated spinner and a plain
+# headless run (e.g. piped output and the test suite, where stdout is captured).
+# The interactive menus require gum unconditionally; ensure_gum guarantees it.
+use_gum() {
+    [ -t 1 ] && command -v gum &>/dev/null
+}
+
+###############################################################################
+# gum bootstrap (temporary install)                                           #
+###############################################################################
+
+# All interactive prompts are powered by gum (https://github.com/charmbracelet/gum).
+# Rather than install it permanently, the script fetches a temporary copy for the
+# duration of the run and removes it on exit, so it leaves nothing behind.
+
+# Pinned gum release used for the temporary install.
+GUM_VERSION="0.17.0"
+
+# Directory holding the temporary gum download; removed by cleanup() on exit.
+GUM_TMPDIR=""
+
+# Make the `gum` CLI available for the interactive prompts. If gum is already
+# installed we use it as-is and leave it untouched. Otherwise we download a
+# temporary copy for this run only — no Homebrew, no system changes — and put it
+# first on PATH (inherited by the child scripts). cleanup() removes it on exit.
+# Call this once, before the first prompt.
+ensure_gum() {
+    command -v gum &>/dev/null && return 0
+
+    log "Getting ready..."
+
+    local os arch name url
+    os=$(uname -s)
+    arch=$(uname -m)
+    case "$arch" in
+        arm64 | aarch64) arch="arm64" ;;
+        x86_64 | amd64) arch="x86_64" ;;
+        *) error "Unsupported architecture: $arch"; exit 1 ;;
+    esac
+
+    name="gum_${GUM_VERSION}_${os}_${arch}"
+    url="https://github.com/charmbracelet/gum/releases/download/v${GUM_VERSION}/${name}.tar.gz"
+
+    GUM_TMPDIR=$(mktemp -d)
+    if ! curl -fsSL "$url" | tar -xz -C "$GUM_TMPDIR" 2>/dev/null; then
+        error "Could not download gum from $url"
+        exit 1
+    fi
+    if [ ! -x "$GUM_TMPDIR/$name/gum" ]; then
+        error "gum binary missing after download"
+        exit 1
+    fi
+
+    export PATH="$GUM_TMPDIR/$name:$PATH"
+}
+
+# Remove the temporary gum install, if any. Safe to call when none was made.
+cleanup_gum() {
+    [ -n "$GUM_TMPDIR" ] && rm -rf "$GUM_TMPDIR"
+    GUM_TMPDIR=""
+}
+
+###############################################################################
 # Message functions                                                           #
 ###############################################################################
 
-# Level 1: Info/confirmation messages (2 spaces)
-info() {
-    echo -e "  ${GRAY}→${NC} $1"
+# log / success / warn / error print a styled, single-line message.
+#
+# Pass an optional indent level as the second argument to nest the line under a
+# heading: level 0 (default) is top-level and shows a status icon (→ ✓ ! ✗);
+# level >0 indents 2 spaces per level and shows a ⎿ tree connector (colored by
+# the message's status) in place of the icon.
+#
+#   log "Installing development tools"   ->  → Installing development tools
+#   success "Homebrew installed" 1       ->    ⎿ Homebrew installed
+_msg() {
+    local color="$1" icon="$2" message="$3" indent="${4:-0}"
+    if [ "$indent" -gt 0 ]; then
+        printf "%*s${color}⎿${NC} %s\n" "$((indent * 2))" "" "$message"
+    else
+        printf "${color}${icon}${NC} %s\n" "$message"
+    fi
 }
 
+log()     { _msg "$GRAY"   "" "$1" "${2:-0}"; }
+success() { _msg "$GREEN"  "✓" "$1" "${2:-0}"; }
+warn()    { _msg "$YELLOW" "!" "$1" "${2:-0}"; }
+error()   { _msg "$RED"    "✗" "$1" "${2:-0}"; }
+
+# confirm "Question?" — yes/no prompt via gum; returns 0 for yes, non-zero
+# otherwise. Requires gum (guaranteed by ensure_gum at startup).
 confirm() {
-    echo -e "  ${GREEN}✓${NC} $1"
-}
-
-# Level 2: Steps (4 spaces)
-success() {
-    echo -e "    ${GREEN}✓${NC} $1"
-}
-
-warn() {
-    echo -e "    ${YELLOW}!${NC} $1"
-}
-
-error() {
-    echo -e "    ${RED}✗${NC} $1"
-}
-
-step() {
-    echo -e "    ${GRAY}→${NC} $1"
-}
-
-step_start() {
-    printf "    ${GRAY}→${NC} %s" "$1"
-}
-
-step_done() {
-    printf "\r\033[K    ${GREEN}✓${NC} %s\n" "$1"
-}
-
-step_skip() {
-    printf "\r\033[K    ${YELLOW}!${NC} %s\n" "$1"
-}
-
-# Level 3: Sub-steps (6 spaces)
-substep_start() {
-    printf "      ${GRAY}→${NC} %s" "$1"
-}
-
-substep_done() {
-    printf "\r\033[K      ${GREEN}✓${NC} %s\n" "$1"
-}
-
-substep_skip() {
-    printf "\r\033[K      ${YELLOW}!${NC} %s\n" "$1"
+    gum confirm "$1"
 }
 
 ###############################################################################
@@ -75,9 +120,14 @@ substep_skip() {
 # When SIMULATE=1, replace mutating system commands with silent no-ops so the
 # script's full UX can be walked through without changing the system. Read-only
 # commands (command -v, brew list/info) are intentionally left intact, and the
-# install spinner is handled separately in run_with_spinner below.
+# install spinner is handled separately in spin below.
 #
 # Call this once at the top of any script that performs system changes.
+#
+# The shadow functions below are invoked indirectly (when the real commands run
+# later), so shellcheck's reachability analysis can flag them as unreachable
+# (SC2317) on some versions. They are intentional, so silence it for this block.
+# shellcheck disable=SC2317
 enable_simulate() {
     [ "${SIMULATE:-0}" = "1" ] || return 0
 
@@ -103,107 +153,81 @@ cleanup_sudo_keepalive() {
     fi
 }
 
+# Combined exit handler: stop the sudo keep-alive and remove any temporary gum.
+# Both halves are no-ops when their resource was never set up, so this is safe to
+# install as the single EXIT/INT/TERM trap.
+cleanup() {
+    cleanup_sudo_keepalive
+    cleanup_gum
+}
+
 # Request sudo access with a nice message, or confirm if already cached
 # Also starts a background process to keep sudo alive
 request_sudo() {
     if sudo -n true 2>/dev/null; then
-        echo -e "  Sudo access already available, no password needed"
+        log "Sudo access already available, no password needed"
     else
-        echo -e "  Your password is needed to change some system settings."
-        sudo -v -p "  Password: "
-        printf "\r\033[K  ${GREEN}✓${NC} Password received, thanks\n"
+        log "Your password is needed to change some system settings."
+        sudo -v -p "Password: "
+        success "Password received, thanks"
     fi
 
     # Keep sudo alive until the script finishes
     (while true; do sudo -n true; sleep 60; done) 2>/dev/null &
     SUDO_KEEPALIVE_PID=$!
 
-    # Ensure cleanup on script exit
-    trap cleanup_sudo_keepalive EXIT INT TERM
+    # Ensure cleanup on script exit (sudo keep-alive + any temporary gum)
+    trap cleanup EXIT INT TERM
 }
 
 ###############################################################################
 # Spinner function                                                            #
 ###############################################################################
 
-# Spinner frames
-SPINNER_FRAMES='⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏'
+# spin "Installing X..." command [args...]
+# Runs the command behind gum's animated spinner (or headlessly when stdout is
+# not a terminal, e.g. CI / piped output). On completion prints an indented ✓/✗
+# line and returns the command's exit status. In simulate mode the command is
+# skipped but the result line is still shown.
+#
+# "Installing X..." is rendered as "X installed" on success.
+spin() {
+    local message="$1"; shift
+    local label="$message" rc log_file
 
-# Run a command with a spinner
-# Usage: run_with_spinner "Installing package..." command arg1 arg2
-run_with_spinner() {
-    local message="$1"
-    shift
-    local cmd=("$@")
+    if [[ "$message" =~ ^Installing[[:space:]](.+)\.\.\.$ ]]; then
+        label="${BASH_REMATCH[1]} installed"
+    fi
 
-    # In simulate mode, show the spinner briefly but never run the command
     if [ "${SIMULATE:-0}" = "1" ]; then
-        local n
-        for ((n = 0; n < 8; n++)); do
-            printf "\r  ${BLUE}%s${NC} %s" "${SPINNER_FRAMES:$((n % ${#SPINNER_FRAMES})):1}" "$message"
-            sleep 0.05
-        done
-        printf "\r\033[K"
+        use_gum && gum spin --spinner dot --title "$message" -- sleep 0.4
+        success "$label" 1
         return 0
     fi
 
-    # Create temp file for capturing output
-    local log_file
+    if use_gum; then
+        if gum spin --spinner dot --title "$message" --show-error -- "$@"; then
+            success "$label" 1
+            return 0
+        else
+            rc=$?
+            error "Failed: $message" 1
+            return "$rc"
+        fi
+    fi
+
+    # Headless (piped output / CI): run the command, surface output on failure.
     log_file=$(mktemp)
-
-    # Start the command in background, capturing output for debugging
-    "${cmd[@]}" &>"$log_file" &
-    local pid=$!
-
-    local i=0
-    local delay=0.1
-
-    # Show spinner while command runs
-    while kill -0 $pid 2>/dev/null; do
-        local frame="${SPINNER_FRAMES:$i:1}"
-        printf "\r  ${BLUE}%s${NC} %s" "$frame" "$message"
-        i=$(( (i + 1) % ${#SPINNER_FRAMES} ))
-        sleep $delay
-    done
-
-    # Wait for command to finish and get exit code
-    wait $pid
-    local exit_code=$?
-
-    # Clear the spinner line
-    printf "\r\033[K"
-
-    # On failure, show the captured output for debugging
-    if [ $exit_code -ne 0 ] && [ -s "$log_file" ]; then
-        echo -e "    ${GRAY}--- Command output ---${NC}" >&2
-        cat "$log_file" >&2
-        echo -e "    ${GRAY}----------------------${NC}" >&2
-    fi
-
-    rm -f "$log_file"
-    return $exit_code
-}
-
-# Run a command with spinner and show success/failure
-# Usage: run_step "Installing package..." command arg1 arg2
-# The message "Installing X..." becomes "X installed" on success
-run_step() {
-    local message="$1"
-    shift
-    
-    # Transform "Installing X..." to "X installed" for success message
-    local success_message="$message"
-    if [[ "$message" =~ ^Installing[[:space:]](.+)\.\.\.$  ]]; then
-        local name="${BASH_REMATCH[1]}"
-        success_message="$name installed"
-    fi
-    
-    if run_with_spinner "$message" "$@"; then
-        success "$success_message"
+    if "$@" &>"$log_file"; then
+        rm -f "$log_file"
+        success "$label" 1
         return 0
     else
-        error "Failed: $message"
-        return 1
+        rc=$?
+        [ -s "$log_file" ] && cat "$log_file" >&2
+        rm -f "$log_file"
+        error "Failed: $message" 1
+        return "$rc"
     fi
 }
 
@@ -211,90 +235,34 @@ run_step() {
 # Multi-select menu                                                           #
 ###############################################################################
 
-# Multi-select checkbox menu: ↑/↓ to move, space to toggle, enter to confirm.
+# Multi-select checkbox menu (gum): ↑/↓ to move, space to toggle, enter to
+# confirm. Requires gum (guaranteed by ensure_gum at startup).
 # Usage: select_multiple "Option 1" "Option 2" ...
 # Result: sets the SELECTED_INDICES array to the chosen option indices (may be
 # empty if nothing was selected).
+#
+# `gum choose` prints the chosen labels (one per line); map them back to option
+# indices to preserve the SELECTED_INDICES contract. Iterating options (not the
+# chosen lines) keeps original order and is robust against duplicate labels.
 select_multiple() {
     local options=("$@")
-    local count=${#options[@]}
-    local cursor=0
-    local key
-    local i
-    local -a checked
-    for ((i = 0; i < count; i++)); do
-        checked[i]=0
-    done
-
-    # Hide cursor and ensure it's restored on exit/interrupt
-    tput civis
-    trap 'tput cnorm' RETURN EXIT INT TERM
-
-    print_menu() {
-        for i in "${!options[@]}"; do
-            local box="[ ]"
-            if [ "${checked[$i]}" -eq 1 ]; then
-                box="[x]"
-            fi
-            if [ "$i" -eq "$cursor" ]; then
-                echo -e "    \033[1;34m> ${box} ${options[$i]}\033[0m"
-            else
-                echo -e "      ${box} ${options[$i]}"
-            fi
-        done
-    }
-
-    clear_menu() {
-        for _ in "${options[@]}"; do
-            tput cuu1
-            tput el
-        done
-    }
-
-    print_menu
-
-    while true; do
-        IFS= read -rsn1 key
-
-        if [[ $key == $'\x1b' ]]; then
-            read -rsn2 key
-            case $key in
-                '[A') # Up arrow
-                    cursor=$((cursor - 1))
-                    if [ $cursor -lt 0 ]; then
-                        cursor=$((count - 1))
-                    fi
-                    ;;
-                '[B') # Down arrow
-                    cursor=$((cursor + 1))
-                    if [ "$cursor" -ge "$count" ]; then
-                        cursor=0
-                    fi
-                    ;;
-            esac
-        elif [[ $key == " " ]]; then
-            # Space toggles the current item
-            if [ "${checked[cursor]}" -eq 1 ]; then
-                checked[cursor]=0
-            else
-                checked[cursor]=1
-            fi
-        elif [[ $key == "" ]]; then
-            # Enter confirms the selection
-            break
-        fi
-
-        clear_menu
-        print_menu
-    done
-
-    # Show cursor
-    tput cnorm
-
     SELECTED_INDICES=()
-    for ((i = 0; i < count; i++)); do
-        if [ "${checked[$i]}" -eq 1 ]; then
-            SELECTED_INDICES+=("$i")
-        fi
+
+    local chosen
+    if ! chosen=$(printf '%s\n' "${options[@]}" | gum choose --no-limit); then
+        # Esc / ctrl-C cancels the selection — treat as nothing selected.
+        return 0
+    fi
+    [ -z "$chosen" ] && return 0
+
+    local i opt line
+    for i in "${!options[@]}"; do
+        opt="${options[$i]}"
+        while IFS= read -r line; do
+            if [ "$line" = "$opt" ]; then
+                SELECTED_INDICES+=("$i")
+                break
+            fi
+        done <<< "$chosen"
     done
 }

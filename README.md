@@ -29,6 +29,8 @@ You can preview the whole flow without changing anything using `--simulate`:
 sh setup.sh --simulate
 ```
 
+The menus, spinner and confirmation prompts are powered by [`gum`](https://github.com/charmbracelet/gum). On startup the script shows `Getting ready...` while it downloads a temporary copy of `gum` (no Homebrew required) and removes it when it finishes, so it leaves nothing behind. If you already have `gum` installed, it's used as-is and left untouched.
+
 ## What it does
 
 ### macOS system preferences
@@ -88,11 +90,11 @@ The scripts are linted with [ShellCheck](https://www.shellcheck.net) and tested 
 ```bash
 brew install bats-core shellcheck
 
-shellcheck setup.sh scripts/*.sh tests/fixtures/*.sh
+shellcheck setup.sh scripts/*.sh
 bats tests/
 ```
 
-Tests live in `tests/` and cover the `utils.sh` helpers (multi-select menu, simulate mode, the install spinner), `setup.sh` argument parsing, and the cask list. Both checks run on every push via GitHub Actions (`.github/workflows/ci.yml`).
+Tests live in `tests/` and cover the `utils.sh` helpers (simulate mode, the install spinner, `gum` capability detection), `setup.sh` argument parsing, and the cask list. The interactive prompts are powered by `gum` and read `/dev/tty`, so they can't be driven headlessly and aren't unit-tested. Both checks run on every push via GitHub Actions (`.github/workflows/ci.yml`), which pins the same ShellCheck version used locally.
 
 ## Inspiration
 

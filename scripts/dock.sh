@@ -8,29 +8,20 @@ source "$SCRIPT_DIR/utils.sh"
 enable_simulate
 
 echo ""
-info "Configuring Dock"
+log "Configuring Dock"
 
 # Check if dockutil is installed
 if ! command -v dockutil &> /dev/null; then
     warn "dockutil is required but not installed"
-    
+
     # Check if Homebrew is available
     if command -v brew &> /dev/null; then
-        read -rp "  Would you like to install dockutil now? (y/n): " install_choice
-        case "$install_choice" in
-            y|Y|yes|Yes)
-                if run_step "Installing dockutil..." brew install dockutil; then
-                    :  # run_step already shows success message
-                else
-                    error "Failed to install dockutil"
-                    exit 1
-                fi
-                ;;
-            *)
-                warn "Skipping Dock configuration. Install dockutil with: brew install dockutil"
-                exit 0
-                ;;
-        esac
+        if confirm "Install dockutil now?"; then
+            spin "Installing dockutil..." brew install dockutil || exit 1
+        else
+            warn "Skipping Dock configuration. Install dockutil with: brew install dockutil"
+            exit 0
+        fi
     else
         error "Please install Homebrew first, then run: brew install dockutil"
         exit 1
@@ -41,9 +32,8 @@ fi
 # Clear existing dock items                                                   #
 ###############################################################################
 
-step_start "Removing existing Dock items..."
 dockutil --remove all --no-restart 2>/dev/null || true
-step_done "Dock cleared"
+success "Dock cleared" 1
 
 ###############################################################################
 # Add core apps                                                               #
@@ -53,19 +43,18 @@ step_done "Dock cleared"
 add_app() {
     local app_path="$1"
     local app_name="$2"
-    if [ -d "$app_path" ]; then
-        substep_start "Adding $app_name..."
-        if dockutil --add "$app_path" --no-restart &>/dev/null; then
-            substep_done "$app_name added"
-        else
-            substep_skip "$app_name failed to add"
-        fi
+    if [ ! -d "$app_path" ]; then
+        warn "$app_name not installed" 2
+        return
+    fi
+    if dockutil --add "$app_path" --no-restart &>/dev/null; then
+        success "$app_name added" 2
     else
-        substep_skip "$app_name not installed"
+        warn "$app_name failed to add" 2
     fi
 }
 
-step "Adding apps to Dock:"
+log "Adding apps to Dock:" 1
 
 # Core apps
 add_app "/System/Applications/Messages.app" "Messages"
@@ -81,28 +70,25 @@ add_app "/Applications/Xcode.app" "Xcode"
 # Add folders                                                                 #
 ###############################################################################
 
-step "Adding folders to Dock:"
-substep_start "Adding Downloads..."
+log "Adding folders to Dock:" 1
 if dockutil --add "$HOME/Downloads" --view grid --display folder --no-restart &>/dev/null; then
-    substep_done "Downloads added"
+    success "Downloads added" 2
 else
-    substep_skip "Downloads failed to add"
+    warn "Downloads failed to add" 2
 fi
 
 ###############################################################################
 # Dock preferences                                                            #
 ###############################################################################
 
-step_start "Configuring Dock preferences..."
 defaults write com.apple.dock show-recents -bool false
-step_done "Dock preferences configured"
+success "Dock preferences configured" 1
 
 ###############################################################################
 # Restart Dock                                                                #
 ###############################################################################
 
-step_start "Restarting Dock..."
 killall Dock
-step_done "Dock restarted"
+success "Dock restarted" 1
 
-confirm "Dock configured successfully"
+success "Dock configured successfully"

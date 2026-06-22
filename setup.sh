@@ -19,7 +19,7 @@ for arg in "$@"; do
         -h|--help)
             echo "Usage: ./setup.sh [--simulate]"
             echo ""
-            echo "  -s, --simulate, --dry-run   Walk through the full flow without making any changes"
+            echo "  -s, --simulate              Walk through the full flow without making any changes"
             echo "  -h, --help                  Show this help"
             exit 0
             ;;
@@ -34,118 +34,54 @@ done
 export SIMULATE
 
 ###############################################################################
-# Arrow key menu function                                                     #
+# Menu function                                                               #
 ###############################################################################
 
+# Single-select menu (gum). Requires gum (guaranteed by ensure_gum at startup).
+# Maps the chosen label back to its index and sets SELECTED_OPTION. Cancelling
+# (esc / ctrl-C) selects the final option, which is the "Exit" entry.
 select_option() {
     local options=("$@")
-    local selected=0
-    local key
+    local chosen i
 
-    # Hide cursor and ensure it's restored on exit/interrupt
-    tput civis
-    trap 'tput cnorm' RETURN EXIT INT TERM
+    if ! chosen=$(printf '%s\n' "${options[@]}" | gum choose); then
+        SELECTED_OPTION=$((${#options[@]} - 1))
+        return 0
+    fi
 
-    # Print menu
-    print_menu() {
-        local last_index=$((${#options[@]} - 1))
-        for i in "${!options[@]}"; do
-            if [ "$i" -eq "$selected" ]; then
-                if [ "$i" -eq "$last_index" ]; then
-                    # Exit option selected - red
-                    echo -e "    \033[1;31m> ${options[$i]}\033[0m"
-                else
-                    # Normal option selected - blue
-                    echo -e "    \033[1;34m> ${options[$i]}\033[0m"
-                fi
-            else
-                echo "      ${options[$i]}"
-            fi
-        done
-    }
-
-    # Clear menu lines
-    clear_menu() {
-        for _ in "${options[@]}"; do
-            tput cuu1
-            tput el
-        done
-    }
-
-    print_menu
-
-    while true; do
-        # Read single character
-        IFS= read -rsn1 key
-
-        # Handle arrow keys (escape sequences)
-        if [[ $key == $'\x1b' ]]; then
-            read -rsn2 key
-            case $key in
-                '[A') # Up arrow
-                    selected=$((selected - 1))
-                    if [ $selected -lt 0 ]; then
-                        selected=$((${#options[@]} - 1))
-                    fi
-                    ;;
-                '[B') # Down arrow
-                    selected=$((selected + 1))
-                    if [ $selected -ge ${#options[@]} ]; then
-                        selected=0
-                    fi
-                    ;;
-            esac
-        elif [[ $key == "" ]]; then
-            # Enter key pressed
-            break
+    for i in "${!options[@]}"; do
+        if [ "${options[$i]}" = "$chosen" ]; then
+            SELECTED_OPTION=$i
+            return 0
         fi
-
-        clear_menu
-        print_menu
     done
 
-    # Show cursor
-    tput cnorm
-
-    # Set global variable instead of return (to avoid set -e issues)
-    SELECTED_OPTION=$selected
+    SELECTED_OPTION=$((${#options[@]} - 1))
 }
 
 ###############################################################################
 # Main script                                                                 #
 ###############################################################################
 
-echo ""
-echo "      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⣀⠀⠀⠀⠀⠀⠀"
-echo "      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣴⣿⣿⡿⠀⠀⠀⠀⠀⠀"
-echo "      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣾⣿⣿⠟⠁⠀⠀⠀⠀⠀⠀"
-echo "      ⠀⠀⠀⢀⣠⣤⣤⣤⣀⣀⠈⠋⠉⣁⣠⣤⣤⣤⣀⡀⠀⠀"
-echo "      ⠀⢠⣶⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣦⡀"
-echo "      ⣠⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠟⠋⠀"
-echo "      ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡏⠀⠀⠀"
-echo "      ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡇⠀⠀⠀"
-echo "      ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣧⠀⠀⠀"
-echo "      ⠹⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣤⣀"
-echo "      ⠀⠻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠁"
-echo "      ⠀⠀⠙⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡟⠁⠀"
-echo "      ⠀⠀⠀⠈⠙⢿⣿⣿⣿⠿⠟⠛⠻⠿⣿⣿⣿⡿⠋⠀⠀⠀"
-# Get username and time-based greeting
-username=$(whoami)
+# All menus require gum; install a temporary copy if needed and make sure it
+# (and the sudo keep-alive) is cleaned up on exit.
+trap cleanup EXIT INT TERM
+ensure_gum
+
+# Time-based greeting
 hour=$(date +%H)
 
 if [ "$hour" -ge 5 ] && [ "$hour" -lt 12 ]; then
-    greeting="Good morning $username"
+    greeting="Good morning"
 elif [ "$hour" -ge 12 ] && [ "$hour" -lt 17 ]; then
-    greeting="Good afternoon $username"
+    greeting="Good afternoon"
 elif [ "$hour" -ge 17 ] && [ "$hour" -lt 21 ]; then
-    greeting="Good evening $username"
+    greeting="Good evening"
 else
-    greeting="Hey $username, you night owl"
+    greeting="Hey night owl"
 fi
 
-echo ""
 echo "  $greeting, how can I help you setup your Mac today?"
-echo ""
 
 # Menu options
 options=(
@@ -160,9 +96,9 @@ select_option "${options[@]}"
 choice=$SELECTED_OPTION
 
 # Handle exit option (last item in array)
-if [ $choice -eq $((${#options[@]} - 1)) ]; then
+if [ "$choice" -eq $((${#options[@]} - 1)) ]; then
     echo ""
-    echo "  Goodbye!"
+    echo "Goodbye!"
     exit 0
 fi
 
@@ -170,7 +106,7 @@ echo ""
 
 # Request sudo only for options that need it (defaults and dev tools), and
 # never in simulate mode
-if [ "$SIMULATE" != "1" ] && { [ $choice -eq 0 ] || [ $choice -eq 2 ] || [ $choice -eq 3 ]; }; then
+if [ "$SIMULATE" != "1" ] && { [ "$choice" -eq 0 ] || [ "$choice" -eq 2 ] || [ "$choice" -eq 3 ]; }; then
     request_sudo
 fi
 
@@ -201,5 +137,5 @@ if [ "$SIMULATE" != "1" ]; then
 fi
 
 echo ""
-echo -e "  ${BOLD}Setup complete${NC} ${RED}♥${NC}"
+printf "  ${BOLD}Setup complete${NC} ${RED}♥${NC}\n"
 exit 0

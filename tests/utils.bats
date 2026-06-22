@@ -1,7 +1,9 @@
 #!/usr/bin/env bats
 # Unit tests for scripts/utils.sh
-
-DRIVER="${BATS_TEST_DIRNAME}/fixtures/select_driver.sh"
+#
+# The interactive prompts (select_option, select_multiple, the gum confirm) are
+# powered by gum and read /dev/tty, so they can't be driven headlessly here;
+# they aren't unit-tested. These tests cover the surrounding logic instead.
 
 setup() {
   source "${BATS_TEST_DIRNAME}/../scripts/utils.sh"
@@ -11,6 +13,13 @@ setup() {
   run success "All good"
   [ "$status" -eq 0 ]
   [[ "$output" == *"All good"* ]]
+}
+
+@test "use_gum() is false when stdout is not a terminal" {
+  # Under `run`, stdout is captured (not a TTY), so spin must run commands
+  # headlessly instead of showing gum's spinner — including in tests.
+  run use_gum
+  [ "$status" -ne 0 ]
 }
 
 @test "enable_simulate() does nothing when SIMULATE is unset" {
@@ -34,40 +43,29 @@ setup() {
   [ -z "$output" ]
 }
 
-@test "run_with_spinner() executes the command in normal mode" {
+@test "success() at indent level >0 shows the ⎿ connector" {
+  run success "Nested" 1
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"⎿"* ]]
+  [[ "$output" == *"Nested"* ]]
+}
+
+@test "spin() runs the command in normal mode" {
   sentinel="${BATS_TEST_TMPDIR}/ran"
-  run_with_spinner "Working..." touch "$sentinel"
+  spin "Working..." touch "$sentinel"
   [ -e "$sentinel" ]
 }
 
-@test "run_with_spinner() propagates a failing exit code" {
-  run run_with_spinner "Working..." false
+@test "spin() propagates a failing exit code" {
+  run spin "Working..." false
   [ "$status" -ne 0 ]
 }
 
-@test "run_step() skips execution in simulate mode but reports success" {
+@test "spin() skips execution in simulate mode but reports success" {
   SIMULATE=1
   sentinel="${BATS_TEST_TMPDIR}/ran"
-  run run_step "Installing Thing..." touch "$sentinel"
+  run spin "Installing Thing..." touch "$sentinel"
   [ "$status" -eq 0 ]
   [ ! -e "$sentinel" ]
   [[ "$output" == *"Thing installed"* ]]
-}
-
-@test "select_multiple(): down, space, enter selects index 1" {
-  run bash -c "printf '\\x1b[B \\n' | bash '$DRIVER' Alpha Bravo Charlie"
-  [ "$status" -eq 0 ]
-  [ "$output" = "1" ]
-}
-
-@test "select_multiple(): space, down, space, enter selects 0 and 1" {
-  run bash -c "printf ' \\x1b[B \\n' | bash '$DRIVER' Alpha Bravo Charlie"
-  [ "$status" -eq 0 ]
-  [ "$output" = "0 1" ]
-}
-
-@test "select_multiple(): enter with no toggles selects nothing" {
-  run bash -c "printf '\\n' | bash '$DRIVER' Alpha Bravo Charlie"
-  [ "$status" -eq 0 ]
-  [ -z "$output" ]
 }
