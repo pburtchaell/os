@@ -4,6 +4,14 @@ A simple script to configure macOS system preferences to my liking and install m
 
 ## Getting started
 
+On a new Mac, run remotely with one command:
+
+```bash
+curl -fsSL psb.lol/setup.sh | bash
+```
+
+Or, from a local clone:
+
 ```bash
 ./setup.sh
 ```
