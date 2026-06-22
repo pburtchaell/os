@@ -1,15 +1,18 @@
 #!/bin/bash
-# Description: Installs development tools (Homebrew, Oh My Zsh, Node, pnpm, Python, Claude Code)
+# Description: Installs development tools (Homebrew, Oh My Zsh, Node, pnpm, Python, Claude Code, Mole)
+#              and offers a selectable list of GUI applications (Homebrew Casks).
 #
-# Note: This script downloads and executes installers from the internet (Homebrew, Oh My Zsh).
+# Note: This script downloads and executes installers from the internet (Homebrew, Oh My Zsh, Claude Code).
 # While these are official installation methods over HTTPS, review the scripts if concerned:
 #   - Homebrew: https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh
 #   - Oh My Zsh: https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh
+#   - Claude Code: https://claude.ai/install.sh
 
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "$SCRIPT_DIR/utils.sh"
+enable_simulate
 
 echo ""
 info "Installing development tools"
@@ -20,6 +23,9 @@ info "Installing development tools"
 
 if command -v brew &>/dev/null; then
     success "Homebrew is already installed"
+elif [ "${SIMULATE:-0}" = "1" ]; then
+    step_start "Installing Homebrew..."
+    step_done "Homebrew installed"
 else
     step_start "Installing Homebrew..."
     # Use NONINTERACTIVE to prevent prompts since we handle sudo separately
@@ -43,6 +49,9 @@ fi
 
 if [ -d "$HOME/.oh-my-zsh" ]; then
     success "Oh My Zsh is already installed"
+elif [ "${SIMULATE:-0}" = "1" ]; then
+    step_start "Installing Oh My Zsh..."
+    step_done "Oh My Zsh installed"
 else
     step_start "Installing Oh My Zsh..."
     # Use --unattended to prevent prompts; note this may modify ~/.zshrc
@@ -96,15 +105,17 @@ fi
 
 if command -v claude &>/dev/null; then
     success "Claude Code is already installed"
+elif [ "${SIMULATE:-0}" = "1" ]; then
+    step_start "Installing Claude Code..."
+    step_done "Claude Code installed"
 else
-    # Check if the formula exists before attempting installation
-    if brew info claude-code &>/dev/null; then
-        if ! run_step "Installing Claude Code..." brew install claude-code; then
-            exit 1
-        fi
+    step_start "Installing Claude Code..."
+    # Native installer (https://claude.ai/install.sh)
+    if bash -c "$(curl --fail -fsSL https://claude.ai/install.sh)"; then
+        step_done "Claude Code installed"
     else
-        warn "Claude Code formula not found in Homebrew"
-        step "Install manually: npm install -g @anthropic-ai/claude-code"
+        step_skip "Claude Code installation failed"
+        exit 1
     fi
 fi
 
@@ -118,6 +129,80 @@ else
     if ! run_step "Installing Mole..." brew install mole; then
         exit 1
     fi
+fi
+
+###############################################################################
+# GUI applications (Homebrew Casks)                                           #
+###############################################################################
+
+# Offered apps, as "cask|/Applications/Name.app|Label"
+cask_apps=(
+    # Browsers
+    "google-chrome|/Applications/Google Chrome.app|Google Chrome"
+    "vivaldi|/Applications/Vivaldi.app|Vivaldi"
+    "firefox|/Applications/Firefox.app|Firefox"
+    # Dev & AI
+    "ghostty|/Applications/Ghostty.app|Ghostty"
+    "visual-studio-code|/Applications/Visual Studio Code.app|Visual Studio Code"
+    "cursor|/Applications/Cursor.app|Cursor"
+    "github|/Applications/GitHub Desktop.app|GitHub Desktop"
+    "claude|/Applications/Claude.app|Claude Desktop"
+    "superwhisper|/Applications/superwhisper.app|superwhisper"
+    # Design & media
+    "figma|/Applications/Figma.app|Figma"
+    "cleanshot|/Applications/CleanShot X.app|CleanShot X"
+    "imageoptim|/Applications/ImageOptim.app|ImageOptim"
+    # Productivity
+    "1password|/Applications/1Password.app|1Password"
+    "paste|/Applications/Paste.app|Paste"
+    "stats|/Applications/Stats.app|Stats"
+    "dropbox|/Applications/Dropbox.app|Dropbox"
+    "flux|/Applications/Flux.app|Flux"
+    # Comms & media
+    "discord|/Applications/Discord.app|Discord"
+    "zoom|/Applications/zoom.us.app|Zoom"
+    "spotify|/Applications/Spotify.app|Spotify"
+    "sonos|/Applications/Sonos.app|Sonos"
+    # Maker / 3D
+    "bambu-studio|/Applications/BambuStudio.app|Bambu Studio"
+    "openscad|/Applications/OpenSCAD.app|OpenSCAD"
+    "raspberry-pi-imager|/Applications/Raspberry Pi Imager.app|Raspberry Pi Imager"
+)
+
+# Helper: is a cask already installed (app present or registered with brew)?
+cask_installed() {
+    local cask="$1" app="$2"
+    [ -d "$app" ] || brew list --cask "$cask" &>/dev/null
+}
+
+# Build menu labels, flagging apps that are already installed
+app_labels=()
+for entry in "${cask_apps[@]}"; do
+    IFS='|' read -r cask app label <<< "$entry"
+    if cask_installed "$cask" "$app"; then
+        app_labels+=("$label (installed)")
+    else
+        app_labels+=("$label")
+    fi
+done
+
+echo ""
+step "Select applications to install:"
+step "↑/↓ to move, space to select, enter to confirm"
+echo ""
+select_multiple "${app_labels[@]}"
+
+if [ ${#SELECTED_INDICES[@]} -eq 0 ]; then
+    step "No applications selected"
+else
+    for idx in "${SELECTED_INDICES[@]}"; do
+        IFS='|' read -r cask app label <<< "${cask_apps[$idx]}"
+        if cask_installed "$cask" "$app"; then
+            success "$label is already installed"
+        elif ! run_step "Installing $label..." brew install --cask "$cask"; then
+            exit 1
+        fi
+    done
 fi
 
 confirm "Development tools installed successfully"

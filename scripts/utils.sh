@@ -69,6 +69,27 @@ substep_skip() {
 }
 
 ###############################################################################
+# Simulation (dry-run) mode                                                   #
+###############################################################################
+
+# When SIMULATE=1, replace mutating system commands with silent no-ops so the
+# script's full UX can be walked through without changing the system. Read-only
+# commands (command -v, brew list/info) are intentionally left intact, and the
+# install spinner is handled separately in run_with_spinner below.
+#
+# Call this once at the top of any script that performs system changes.
+enable_simulate() {
+    [ "${SIMULATE:-0}" = "1" ] || return 0
+
+    defaults() { :; }
+    dockutil() { :; }
+    chflags()  { :; }
+    killall()  { :; }
+    sudo()     { :; }
+    touch()    { :; }
+}
+
+###############################################################################
 # Sudo functions                                                              #
 ###############################################################################
 
@@ -114,6 +135,17 @@ run_with_spinner() {
     local message="$1"
     shift
     local cmd=("$@")
+
+    # In simulate mode, show the spinner briefly but never run the command
+    if [ "${SIMULATE:-0}" = "1" ]; then
+        local n
+        for ((n = 0; n < 8; n++)); do
+            printf "\r  ${BLUE}%s${NC} %s" "${SPINNER_FRAMES:$((n % ${#SPINNER_FRAMES})):1}" "$message"
+            sleep 0.05
+        done
+        printf "\r\033[K"
+        return 0
+    fi
 
     # Create temp file for capturing output
     local log_file
@@ -173,4 +205,96 @@ run_step() {
         error "Failed: $message"
         return 1
     fi
+}
+
+###############################################################################
+# Multi-select menu                                                           #
+###############################################################################
+
+# Multi-select checkbox menu: ↑/↓ to move, space to toggle, enter to confirm.
+# Usage: select_multiple "Option 1" "Option 2" ...
+# Result: sets the SELECTED_INDICES array to the chosen option indices (may be
+# empty if nothing was selected).
+select_multiple() {
+    local options=("$@")
+    local count=${#options[@]}
+    local cursor=0
+    local key
+    local i
+    local -a checked
+    for ((i = 0; i < count; i++)); do
+        checked[i]=0
+    done
+
+    # Hide cursor and ensure it's restored on exit/interrupt
+    tput civis
+    trap 'tput cnorm' RETURN EXIT INT TERM
+
+    print_menu() {
+        for i in "${!options[@]}"; do
+            local box="[ ]"
+            if [ "${checked[$i]}" -eq 1 ]; then
+                box="[x]"
+            fi
+            if [ "$i" -eq "$cursor" ]; then
+                echo -e "    \033[1;34m> ${box} ${options[$i]}\033[0m"
+            else
+                echo -e "      ${box} ${options[$i]}"
+            fi
+        done
+    }
+
+    clear_menu() {
+        for _ in "${options[@]}"; do
+            tput cuu1
+            tput el
+        done
+    }
+
+    print_menu
+
+    while true; do
+        IFS= read -rsn1 key
+
+        if [[ $key == $'\x1b' ]]; then
+            read -rsn2 key
+            case $key in
+                '[A') # Up arrow
+                    cursor=$((cursor - 1))
+                    if [ $cursor -lt 0 ]; then
+                        cursor=$((count - 1))
+                    fi
+                    ;;
+                '[B') # Down arrow
+                    cursor=$((cursor + 1))
+                    if [ "$cursor" -ge "$count" ]; then
+                        cursor=0
+                    fi
+                    ;;
+            esac
+        elif [[ $key == " " ]]; then
+            # Space toggles the current item
+            if [ "${checked[cursor]}" -eq 1 ]; then
+                checked[cursor]=0
+            else
+                checked[cursor]=1
+            fi
+        elif [[ $key == "" ]]; then
+            # Enter confirms the selection
+            break
+        fi
+
+        clear_menu
+        print_menu
+    done
+
+    # Show cursor
+    tput cnorm
+
+    SELECTED_INDICES=()
+    for ((i = 0; i < count; i++)); do
+        if [ "${checked[$i]}" -eq 1 ]; then
+            SELECTED_INDICES+=("$i")
+        fi
+    done
 }

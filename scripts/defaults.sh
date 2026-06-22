@@ -6,6 +6,7 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "$SCRIPT_DIR/utils.sh"
+enable_simulate
 
 echo ""
 info "Configuring macOS preferences"
@@ -145,7 +146,7 @@ step_done "Menu Bar & Control Center configured"
 confirm "macOS preferences configured successfully"
 
 # Prompt for reboot before restarting apps (so prompt displays correctly)
-read -p "  Would you like to reboot your Mac now? (y/n): " reboot_choice
+read -rp "  Would you like to reboot your Mac now? (y/n): " reboot_choice
 case "$reboot_choice" in
     y|Y|yes|Yes)
         step "Rebooting..."

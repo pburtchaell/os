@@ -5,6 +5,7 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "$SCRIPT_DIR/utils.sh"
+enable_simulate
 
 echo ""
 info "Configuring Dock"
@@ -15,7 +16,7 @@ if ! command -v dockutil &> /dev/null; then
     
     # Check if Homebrew is available
     if command -v brew &> /dev/null; then
-        read -p "  Would you like to install dockutil now? (y/n): " install_choice
+        read -rp "  Would you like to install dockutil now? (y/n): " install_choice
         case "$install_choice" in
             y|Y|yes|Yes)
                 if run_step "Installing dockutil..." brew install dockutil; then

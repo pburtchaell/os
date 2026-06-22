@@ -7,6 +7,33 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "$SCRIPT_DIR/scripts/utils.sh"
 
 ###############################################################################
+# Arguments                                                                   #
+###############################################################################
+
+SIMULATE=0
+for arg in "$@"; do
+    case "$arg" in
+        -s|--simulate|--dry-run)
+            SIMULATE=1
+            ;;
+        -h|--help)
+            echo "Usage: ./setup.sh [--simulate]"
+            echo ""
+            echo "  -s, --simulate, --dry-run   Walk through the full flow without making any changes"
+            echo "  -h, --help                  Show this help"
+            exit 0
+            ;;
+        *)
+            echo "Unknown option: $arg" >&2
+            echo "Run './setup.sh --help' for usage." >&2
+            exit 1
+            ;;
+    esac
+done
+# Exported so the scripts/*.sh child scripts inherit simulate mode
+export SIMULATE
+
+###############################################################################
 # Arrow key menu function                                                     #
 ###############################################################################
 
@@ -23,8 +50,8 @@ select_option() {
     print_menu() {
         local last_index=$((${#options[@]} - 1))
         for i in "${!options[@]}"; do
-            if [ $i -eq $selected ]; then
-                if [ $i -eq $last_index ]; then
+            if [ "$i" -eq "$selected" ]; then
+                if [ "$i" -eq "$last_index" ]; then
                     # Exit option selected - red
                     echo -e "    \033[1;31m> ${options[$i]}\033[0m"
                 else
@@ -141,8 +168,9 @@ fi
 
 echo ""
 
-# Request sudo only for options that need it (defaults and dev tools)
-if [ $choice -eq 0 ] || [ $choice -eq 2 ] || [ $choice -eq 3 ]; then
+# Request sudo only for options that need it (defaults and dev tools), and
+# never in simulate mode
+if [ "$SIMULATE" != "1" ] && { [ $choice -eq 0 ] || [ $choice -eq 2 ] || [ $choice -eq 3 ]; }; then
     request_sudo
 fi
 
@@ -167,8 +195,10 @@ case $choice in
         ;;
 esac
 
-# Mark setup as complete
-touch "$HOME/.osrc"
+# Mark setup as complete (skipped in simulate mode)
+if [ "$SIMULATE" != "1" ]; then
+    touch "$HOME/.osrc"
+fi
 
 echo ""
 echo -e "  ${BOLD}Setup complete${NC} ${RED}♥${NC}"
