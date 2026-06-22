@@ -20,8 +20,14 @@ The script will present a menu with configuration options:
 
 - **macOS settings** - Configure system preferences and app defaults
 - **Dock layout** - Set up Dock apps and settings
-- **Development tools** - Install Homebrew, Oh My Zsh, Node, pnpm, Python, Claude Code and Mole
+- **Development tools** - Install Homebrew, Oh My Zsh, Node, pnpm, Python, Claude Code, Mole and a selectable set of apps
 - **All of the above** - Run everything
+
+You can preview the whole flow without changing anything using `--simulate`:
+
+```bash
+./setup.sh --simulate
+```
 
 ## What it does
 
@@ -65,6 +71,28 @@ Installs the following tools if not already present:
 - **Python** - General-purpose programming language
 - **Claude Code** - Fast coding
 - **Mole** - SSH tunnel manager
+
+It then offers a checklist of GUI apps to install via Homebrew Cask (↑/↓ to move, space to select, enter to confirm):
+
+- **Browsers**: Google Chrome, Vivaldi, Firefox
+- **Dev & AI**: Ghostty, Visual Studio Code, Cursor, GitHub Desktop, Claude Desktop, superwhisper
+- **Design & media**: Figma, CleanShot X, ImageOptim
+- **Productivity**: 1Password, Paste, Stats, Dropbox, Flux
+- **Comms & media**: Discord, Zoom, Spotify, Sonos
+- **Maker / 3D**: Bambu Studio, OpenSCAD, Raspberry Pi Imager
+
+## Development
+
+The scripts are linted with [ShellCheck](https://www.shellcheck.net) and tested with [bats-core](https://github.com/bats-core/bats-core):
+
+```bash
+brew install bats-core shellcheck
+
+shellcheck setup.sh scripts/*.sh tests/fixtures/*.sh
+bats tests/
+```
+
+Tests live in `tests/` and cover the `utils.sh` helpers (multi-select menu, simulate mode, the install spinner), `setup.sh` argument parsing, and the cask list. Both checks run on every push via GitHub Actions (`.github/workflows/ci.yml`).
 
 ## Inspiration
 
