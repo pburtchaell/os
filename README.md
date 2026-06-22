@@ -10,10 +10,10 @@ On a new Mac, run remotely with one command:
 curl -fsSL psb.lol/setup.sh | bash
 ```
 
-Or, from a local clone:
+Or from a local clone:
 
 ```bash
-./setup.sh
+sh setup.sh
 ```
 
 The script will present a menu with configuration options:
@@ -26,7 +26,7 @@ The script will present a menu with configuration options:
 You can preview the whole flow without changing anything using `--simulate`:
 
 ```bash
-./setup.sh --simulate
+sh setup.sh --simulate
 ```
 
 ## What it does
