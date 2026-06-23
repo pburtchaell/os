@@ -1,11 +1,11 @@
 #!/usr/bin/env bats
-# Tests for the GUI app (Homebrew Cask) list in scripts/dev.sh
+# Tests for the GUI app (Homebrew Cask) list in scripts/apps.sh
 
-DEV_SH="${BATS_TEST_DIRNAME}/../scripts/dev.sh"
+APPS_SH="${BATS_TEST_DIRNAME}/../scripts/apps.sh"
 
-# Source just the cask_apps=( ... ) array literal out of dev.sh
+# Source just the cask_apps=( ... ) array literal out of apps.sh
 load_casks() {
-  eval "$(sed -n '/^cask_apps=(/,/^)/p' "$DEV_SH")"
+  eval "$(sed -n '/^cask_apps=(/,/^)/p' "$APPS_SH")"
 }
 
 @test "cask_apps array is non-empty" {

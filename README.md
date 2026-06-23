@@ -20,7 +20,8 @@ The script will present a menu with configuration options:
 
 - **macOS settings** - Configure system preferences and app defaults
 - **Dock layout** - Set up Dock apps and settings
-- **Development tools** - Install Homebrew, Oh My Zsh, Node, pnpm, Python, Claude Code, Mole and a selectable set of apps
+- **Development tools** - Install Homebrew, Oh My Zsh, Node, pnpm, Python, Claude Code and Mole
+- **Applications** - Install a selectable set of GUI apps via Homebrew Cask
 - **All of the above** - Run everything
 
 You can preview the whole flow without changing anything using `--simulate`:
@@ -28,6 +29,8 @@ You can preview the whole flow without changing anything using `--simulate`:
 ```bash
 sh setup.sh --simulate
 ```
+
+If an install appears to hang, run with `--verbose` (or `VERBOSE=1`) to stream the installer output live instead of behind a spinner.
 
 The menus, spinner and confirmation prompts are powered by [`gum`](https://github.com/charmbracelet/gum). On startup the script shows `Getting ready...` while it downloads a temporary copy of `gum` (no Homebrew required) and removes it when it finishes, so it leaves nothing behind. If you already have `gum` installed, it's used as-is and left untouched.
 
@@ -74,7 +77,9 @@ Installs the following tools if not already present:
 - **Claude Code** - Fast coding
 - **Mole** - SSH tunnel manager
 
-It then offers a checklist of GUI apps to install via Homebrew Cask (↑/↓ to move, space to select, enter to confirm):
+### Applications
+
+Offers a checklist of GUI apps to install via Homebrew Cask (↑/↓ to move, space to select, enter to confirm):
 
 - **Browsers**: Google Chrome, Vivaldi, Firefox
 - **Dev & AI**: Ghostty, Visual Studio Code, Cursor, GitHub Desktop, Claude Desktop, superwhisper

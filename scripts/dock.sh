@@ -7,7 +7,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "$SCRIPT_DIR/utils.sh"
 enable_simulate
 
-echo ""
+space
 log "Configuring Dock"
 
 # Check if dockutil is installed

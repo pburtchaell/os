@@ -8,7 +8,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "$SCRIPT_DIR/utils.sh"
 enable_simulate
 
-echo ""
+space
 log "Configuring macOS preferences"
 
 # Note: Safari preferences are stored in a sandboxed container on modern macOS.

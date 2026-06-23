@@ -88,13 +88,15 @@ else
     greeting="Hey night owl"
 fi
 
-echo "  $greeting, how can I help you setup your Mac today?"
+echo "$greeting, how can I help?"
+space
 
 # Menu options
 options=(
     "Update macOS settings and apps with their preferred defaults"
     "Update macOS dock with its preferred apps and layout"
     "Install development tools (Brew, Oh My Zsh, Node, pnpm & Claude Code)"
+    "Install applications (Chrome, Figma, Spotify & more)"
     "All of the above"
     "Exit"
 )
@@ -104,16 +106,16 @@ choice=$SELECTED_OPTION
 
 # Handle exit option (last item in array)
 if [ "$choice" -eq $((${#options[@]} - 1)) ]; then
-    echo ""
+    space
     echo "Goodbye!"
     exit 0
 fi
 
-echo ""
+space
 
-# Request sudo only for options that need it (defaults and dev tools), and
-# never in simulate mode
-if [ "$SIMULATE" != "1" ] && { [ "$choice" -eq 0 ] || [ "$choice" -eq 2 ] || [ "$choice" -eq 3 ]; }; then
+# Request sudo only for options that need it (defaults, dev tools, apps, all),
+# and never in simulate mode
+if [ "$SIMULATE" != "1" ] && { [ "$choice" -eq 0 ] || [ "$choice" -eq 2 ] || [ "$choice" -eq 3 ] || [ "$choice" -eq 4 ]; }; then
     request_sudo
 fi
 
@@ -131,10 +133,15 @@ case $choice in
         bash "$SCRIPT_DIR/scripts/dev.sh" || exit 1
         ;;
     3)
+        # Applications only
+        bash "$SCRIPT_DIR/scripts/apps.sh" || exit 1
+        ;;
+    4)
         # Run all
         bash "$SCRIPT_DIR/scripts/defaults.sh" || exit 1
         bash "$SCRIPT_DIR/scripts/dock.sh" || exit 1
         bash "$SCRIPT_DIR/scripts/dev.sh" || exit 1
+        bash "$SCRIPT_DIR/scripts/apps.sh" || exit 1
         ;;
 esac
 
@@ -143,6 +150,6 @@ if [ "$SIMULATE" != "1" ]; then
     touch "$HOME/.osrc"
 fi
 
-echo ""
-printf "  ${BOLD}Setup complete${NC} ${RED}♥${NC}\n"
+space
+printf "${BOLD}Setup complete${NC} ${RED}♥${NC}\n"
 exit 0

@@ -72,6 +72,9 @@ ensure_gum() {
     fi
 
     export PATH="$GUM_TMPDIR/$name:$PATH"
+
+    # Separate the "Getting ready..." line from whatever the caller prints next.
+    space
 }
 
 # Remove the temporary gum install, if any. Safe to call when none was made.
@@ -97,8 +100,10 @@ _msg() {
     local color="$1" icon="$2" message="$3" indent="${4:-0}"
     if [ "$indent" -gt 0 ]; then
         printf "%*s${color}⎿${NC} %s\n" "$((indent * 2))" "" "$message"
-    else
+    elif [ -n "$icon" ]; then
         printf "${color}${icon}${NC} %s\n" "$message"
+    else
+        printf "%s\n" "$message"
     fi
 }
 
@@ -106,6 +111,11 @@ log()     { _msg "$GRAY"   "" "$1" "${2:-0}"; }
 success() { _msg "$GREEN"  "✓" "$1" "${2:-0}"; }
 warn()    { _msg "$YELLOW" "!" "$1" "${2:-0}"; }
 error()   { _msg "$RED"    "✗" "$1" "${2:-0}"; }
+
+# Print a blank line to separate sections.
+space() {
+    printf "\n"
+}
 
 # confirm "Question?" — yes/no prompt via gum; returns 0 for yes, non-zero
 # otherwise. Requires gum (guaranteed by ensure_gum at startup).
