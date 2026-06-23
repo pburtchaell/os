@@ -10,16 +10,23 @@ source "$SCRIPT_DIR/scripts/utils.sh"
 # Arguments                                                                   #
 ###############################################################################
 
-SIMULATE=0
+# Default from the environment so `SIMULATE=1 ./setup.sh` / `VERBOSE=1 ./setup.sh`
+# work too (e.g. through the remote bootstrap, which can't forward flags).
+SIMULATE="${SIMULATE:-0}"
+VERBOSE="${VERBOSE:-0}"
 for arg in "$@"; do
     case "$arg" in
         -s|--simulate|--dry-run)
             SIMULATE=1
             ;;
+        -v|--verbose)
+            VERBOSE=1
+            ;;
         -h|--help)
-            echo "Usage: ./setup.sh [--simulate]"
+            echo "Usage: ./setup.sh [--simulate] [--verbose]"
             echo ""
             echo "  -s, --simulate              Walk through the full flow without making any changes"
+            echo "  -v, --verbose               Stream installer output live instead of a spinner"
             echo "  -h, --help                  Show this help"
             exit 0
             ;;
@@ -30,8 +37,8 @@ for arg in "$@"; do
             ;;
     esac
 done
-# Exported so the scripts/*.sh child scripts inherit simulate mode
-export SIMULATE
+# Exported so the scripts/*.sh child scripts inherit simulate/verbose mode
+export SIMULATE VERBOSE
 
 ###############################################################################
 # Menu function                                                               #

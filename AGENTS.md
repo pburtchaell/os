@@ -5,6 +5,7 @@ Bash scripts for automating macOS system preferences, Dock layout, and dev tool 
 Run `./setup.sh` for the interactive menu. Targets macOS Tahoe.
 
 Run `./setup.sh --simulate` to walk the whole flow without changing the system.
+Run `./setup.sh --verbose` (or `VERBOSE=1`) to stream installer output live instead of behind a spinner — use it when an install appears to hang.
 
 Output helpers live in `scripts/utils.sh`. Messages use a small semantic set —
 `log` (→), `success` (✓), `warn` (!), `error` (✗) — each taking an optional

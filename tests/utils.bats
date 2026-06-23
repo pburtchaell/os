@@ -69,3 +69,12 @@ setup() {
   [ ! -e "$sentinel" ]
   [[ "$output" == *"Thing installed"* ]]
 }
+
+@test "spin() in verbose mode runs the command and reports success" {
+  VERBOSE=1
+  sentinel="${BATS_TEST_TMPDIR}/ran"
+  run spin "Installing Thing..." touch "$sentinel"
+  [ "$status" -eq 0 ]
+  [ -e "$sentinel" ]
+  [[ "$output" == *"Thing installed"* ]]
+}

@@ -188,7 +188,9 @@ request_sudo() {
 # Runs the command behind gum's animated spinner (or headlessly when stdout is
 # not a terminal, e.g. CI / piped output). On completion prints an indented ✓/✗
 # line and returns the command's exit status. In simulate mode the command is
-# skipped but the result line is still shown.
+# skipped but the result line is still shown. With VERBOSE=1 the spinner is
+# bypassed and the command's output streams live — useful when an install
+# appears to hang (the spinner otherwise hides its output and any prompts).
 #
 # "Installing X..." is rendered as "X installed" on success.
 spin() {
@@ -203,6 +205,20 @@ spin() {
         use_gum && gum spin --spinner dot --title "$message" -- sleep 0.4
         success "$label" 1
         return 0
+    fi
+
+    # Verbose: stream the command's output live instead of hiding it behind a
+    # spinner, so a stalled install (or a prompt it is waiting on) is visible.
+    if [ "${VERBOSE:-0}" = "1" ]; then
+        log "$message" 1
+        if "$@"; then
+            success "$label" 1
+            return 0
+        else
+            rc=$?
+            error "Failed: $message" 1
+            return "$rc"
+        fi
     fi
 
     if use_gum; then
