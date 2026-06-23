@@ -67,7 +67,7 @@ Clears the default Dock apps and adds your preferred apps in a nice order:
 
 ### Development tools
 
-Installs the following tools if not already present:
+Offers a checklist of dev tools to install — the ones you don't have yet are pre-selected, so you can deselect any you want to skip (↑/↓ to move, space to toggle, enter to confirm):
 
 - **Homebrew** - Package manager for macOS
 - **Oh My Zsh** - Framework for managing Zsh configuration

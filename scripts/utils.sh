@@ -270,12 +270,23 @@ spin() {
 # `gum choose` prints the chosen labels (one per line); map them back to option
 # indices to preserve the SELECTED_INDICES contract. Iterating options (not the
 # chosen lines) keeps original order and is robust against duplicate labels.
+# Labels that select_multiple should start checked. Callers set this before
+# calling; empty by default. Mapped to gum's --selected flag.
+PRESELECTED=()
+
 select_multiple() {
     local options=("$@")
     SELECTED_INDICES=()
 
+    local args=(--no-limit)
+    if [ "${#PRESELECTED[@]}" -gt 0 ]; then
+        local joined
+        joined=$(IFS=,; printf '%s' "${PRESELECTED[*]}")
+        args+=("--selected=$joined")
+    fi
+
     local chosen
-    if ! chosen=$(printf '%s\n' "${options[@]}" | gum choose --no-limit); then
+    if ! chosen=$(printf '%s\n' "${options[@]}" | gum choose "${args[@]}"); then
         # Esc / ctrl-C cancels the selection — treat as nothing selected.
         return 0
     fi
